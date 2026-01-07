@@ -25,7 +25,17 @@ if (!raw) {
   document.getElementById("report").innerHTML = "<p>No report data.</p>";
 } else {
   const d = JSON.parse(decodeURIComponent(raw));
-  const map = v => v === "W" ? '<span class="badge good">Working</span>' : '<span class="badge warn">Issue</span>';
+
+  const map = v => v === "W"
+    ? '<span class="badge good">Working</span>'
+    : '<span class="badge warn">Issue</span>';
+
+  function tyre(mm) {
+    if (mm === null) return "Not checked";
+    if (mm < 1.6) return `<span class="badge bad">${mm} mm – Illegal</span>`;
+    if (mm < 3) return `<span class="badge warn">${mm} mm – Low</span>`;
+    return `<span class="badge good">${mm} mm – Good</span>`;
+  }
 
   document.getElementById("report").innerHTML = `
     <p><strong>Registration:</strong> ${d.r}</p>
@@ -33,7 +43,15 @@ if (!raw) {
     <p><strong>Windscreen:</strong> ${map(d.w)}</p>
     <p><strong>Wipers:</strong> ${map(d.wp)}</p>
 
-    <h3>Driver Side</h3>
+    <h3>Tyres</h3>
+    <ul>
+      <li>Driver Front: ${tyre(d.t.df)}</li>
+      <li>Driver Rear: ${tyre(d.t.dr)}</li>
+      <li>Passenger Front: ${tyre(d.t.pf)}</li>
+      <li>Passenger Rear: ${tyre(d.t.pr)}</li>
+    </ul>
+
+    <h3>Lights – Driver Side</h3>
     <ul>
       <li>Front light ${map(d.l.d.fl)}</li>
       <li>Rear light ${map(d.l.d.rl)}</li>
@@ -43,7 +61,7 @@ if (!raw) {
       <li>Side repeater ${map(d.l.d.is)}</li>
     </ul>
 
-    <h3>Passenger Side</h3>
+    <h3>Lights – Passenger Side</h3>
     <ul>
       <li>Front light ${map(d.l.p.fl)}</li>
       <li>Rear light ${map(d.l.p.rl)}</li>
