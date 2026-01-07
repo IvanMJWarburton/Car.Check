@@ -1,61 +1,26 @@
-function treadStatus(mm) {
-  if (mm === "" || mm === null) return "Not checked";
-  if (mm < 1.6) return "Illegal (below 1.6mm)";
-  if (mm < 3) return "Low tread";
-  return "Good tread";
-}
-
 function generate() {
+  reg.value = reg.value.toUpperCase();
+
   const data = {
-    reg: reg.value,
-    windscreen: windscreen.value,
-    wipers: wipers.value,
-    lights: {
-      driver: {
-        front: light_fr.value,
-        rear: light_rr.value,
-        brake: brake_r.value,
-        indicators: {
-          front: ind_rf.value,
-          rear: ind_rr.value,
-          side: ind_rs.value
-        }
-      },
-      passenger: {
-        front: light_fl.value,
-        rear: light_rl.value,
-        brake: brake_l.value,
-        indicators: {
-          front: ind_lf.value,
-          rear: ind_lr.value,
-          side: ind_ls.value
-        }
-      }
-    },
-    tread: {
-      driver: {
-        front: treadStatus(td_fl.value),
-        rear: treadStatus(td_rl.value)
-      },
-      passenger: {
-        front: treadStatus(td_fr.value),
-        rear: treadStatus(td_rr.value)
-      }
-    },
-    notes: notes.value,
-    advisory: "Visual check only. Not an MOT or safety guarantee."
+    r: reg.value,
+    w: windscreen.value,
+    wp: wipers.value,
+    l: {
+      d: { fl:d_fl.value, rl:d_rl.value, br:d_br.value, if:d_if.value, ir:d_ir.value, is:d_is.value },
+      p: { fl:p_fl.value, rl:p_rl.value, br:p_br.value, if:p_if.value, ir:p_ir.value, is:p_is.value }
+    }
   };
 
   const encoded = encodeURIComponent(JSON.stringify(data));
-  const url = "https://ivanmjwarburton.github.io/Car.Check/report.html?data=" + encoded;
+  const url = "https://ivanmjwarburton.github.io/Car.Check/report.html?d=" + encoded;
 
   const qr = document.getElementById("qrcode");
   qr.innerHTML = "";
 
   new QRCode(qr, {
     text: url,
-    width: 200,
-    height: 200,
+    width: 180,
+    height: 180,
     correctLevel: QRCode.CorrectLevel.M
   });
 }
