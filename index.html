@@ -2,61 +2,136 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Vehicle Visual Check</title>
+<title>Vehicle Visual Check (Advisory)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+
 <style>
-body { font-family: Arial; max-width: 600px; margin: auto; }
-label { display: block; margin-top: 10px; }
-button { margin-top: 15px; padding: 10px; }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+  background: #f5f7fa;
+  margin: 0;
+  padding: 16px;
+}
+
+.container {
+  max-width: 480px;
+  margin: auto;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 4px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  margin-top: 16px;
+}
+
+button:active {
+  background: #1e40af;
+}
+
+#qrcode {
+  margin-top: 20px;
+  text-align: center;
+}
+
+small {
+  display: block;
+  margin-top: 16px;
+  color: #555;
+  font-size: 12px;
+  text-align: center;
+}
 </style>
 </head>
 
 <body>
+<div class="container">
 
 <h2>Vehicle Visual Check (Advisory)</h2>
 
-<label>Vehicle Reg:
-<input id="reg">
+<label>Vehicle Registration
+  <input id="reg" placeholder="e.g. AB12 CDE">
 </label>
 
-<label>Windscreen:
-<select id="windscreen">
-  <option>No visible issues</option>
-  <option>Chip/crack observed</option>
-</select>
+<label>MOT Expiry Date
+  <input id="motDate" type="date">
 </label>
 
-<label>Wipers:
-<select id="wipers">
-  <option>No visible issues</option>
-  <option>Worn/damaged</option>
-</select>
+<label>Windscreen
+  <select id="windscreen">
+    <option>No visible issues</option>
+    <option>Chip/crack observed</option>
+  </select>
 </label>
 
-<label>Front Left Tread (mm):
-<input id="fl" type="number" step="0.1">
+<label>Wiper Blades
+  <select id="wipers">
+    <option>No visible issues</option>
+    <option>Worn/damaged</option>
+  </select>
 </label>
 
-<label>Front Right Tread (mm):
-<input id="fr" type="number" step="0.1">
+<label>Front Left Tread (mm)
+  <input id="fl" type="number" step="0.1" inputmode="decimal">
 </label>
 
-<label>Rear Left Tread (mm):
-<input id="rl" type="number" step="0.1">
+<label>Front Right Tread (mm)
+  <input id="fr" type="number" step="0.1" inputmode="decimal">
 </label>
 
-<label>Rear Right Tread (mm):
-<input id="rr" type="number" step="0.1">
+<label>Rear Left Tread (mm)
+  <input id="rl" type="number" step="0.1" inputmode="decimal">
+</label>
+
+<label>Rear Right Tread (mm)
+  <input id="rr" type="number" step="0.1" inputmode="decimal">
 </label>
 
 <button onclick="generate()">Generate QR Code</button>
 
 <div id="qrcode"></div>
 
+<small>
+Visual check only. Not an MOT, mechanical inspection, or safety guarantee.
+</small>
+
+</div>
+
 <script>
 function generate() {
   const report = {
     reg: reg.value,
+    motExpiry: motDate.value,
     windscreen: windscreen.value,
     wipers: wipers.value,
     tread: {
@@ -71,10 +146,11 @@ function generate() {
   const data = encodeURIComponent(JSON.stringify(report));
 
   document.getElementById("qrcode").innerHTML = "";
+
   new QRCode(document.getElementById("qrcode"), {
     text: "https://ivanmjwarburton.github.io/Car.Check/report.html?data=" + data,
-    width: 200,
-    height: 200
+    width: 220,
+    height: 220
   });
 }
 </script>
