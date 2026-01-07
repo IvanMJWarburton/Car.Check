@@ -9,29 +9,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
-/* QR hidden until generated */
-#qrWrapper {
-  display: none;
-  text-align: center;
-  margin-top: 20px;
-}
+#qrWrapper { display:none; text-align:center; margin-top:20px; }
 
-/* Fullscreen QR overlay */
 #qrFullscreen {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: white;
-  z-index: 9999;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
+  display:none;
+  position:fixed;
+  inset:0;
+  background:white;
+  z-index:9999;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
 }
-
-#qrFullscreen small {
-  margin-top: 12px;
-  opacity: 0.7;
-}
+#qrFullscreen small { margin-top:12px; opacity:0.7; }
 </style>
 </head>
 
@@ -92,35 +82,30 @@
 </div>
 
 <h3>Additional / Extra Lighting Observations</h3>
-<label>
-  <textarea id="lightNotes" rows="3" placeholder="e.g. DRL strip partially out, light bar not working, aftermarket lighting noted"></textarea>
-</label>
+<textarea id="lightNotes" rows="3"
+  placeholder="e.g. DRL strip partially out, light bar not working"></textarea>
 
 <button onclick="generate()">Generate QR Code</button>
 
-<!-- QR only appears AFTER generation -->
 <div id="qrWrapper">
   <div id="qrcode" onclick="openFullscreenQR()"></div>
   <small>Tap QR to enlarge for scanning</small>
 </div>
 
 <small>Visual check only. Not an MOT or safety guarantee.</small>
-
 </div>
 
-<!-- Fullscreen QR -->
 <div id="qrFullscreen" onclick="closeFullscreenQR()">
   <div id="qrBig"></div>
   <small>Increase screen brightness for best scanning</small>
 </div>
 
 <script>
+let qrURL = "";
 let wakeLock = null;
 
 async function requestWakeLock() {
-  try {
-    wakeLock = await navigator.wakeLock.request("screen");
-  } catch {}
+  try { wakeLock = await navigator.wakeLock.request("screen"); } catch {}
 }
 
 function generate() {
@@ -132,37 +117,31 @@ function generate() {
     w: windscreen.value,
     wp: wipers.value,
     n: lightNotes.value,
-    t: {
-      df: parseFloat(td_df.value) || null,
-      dr: parseFloat(td_dr.value) || null,
-      pf: parseFloat(td_pf.value) || null,
-      pr: parseFloat(td_pr.value) || null
-    },
-    l: {
+    t:{df:+td_df.value||null,dr:+td_dr.value||null,pf:+td_pf.value||null,pr:+td_pr.value||null},
+    l:{
       d:{fl:d_fl.value,rl:d_rl.value,br:d_br.value,if:d_if.value,ir:d_ir.value,is:d_is.value},
       p:{fl:p_fl.value,rl:p_rl.value,br:p_br.value,if:p_if.value,ir:p_ir.value,is:p_is.value}
     }
   };
 
-  const encoded = encodeURIComponent(JSON.stringify(data));
-  const url = "https://ivanmjwarburton.github.io/Car.Check/report.html?d=" + encoded;
+  qrURL = "https://ivanmjwarburton.github.io/Car.Check/report.html?d="
+           + encodeURIComponent(JSON.stringify(data));
 
   document.getElementById("qrWrapper").style.display = "block";
   document.getElementById("qrcode").innerHTML = "";
 
   new QRCode(document.getElementById("qrcode"), {
-    text: url,
-    width: 180,
-    height: 180,
-    correctLevel: QRCode.CorrectLevel.M
+    text: qrURL, width:180, height:180, correctLevel:QRCode.CorrectLevel.M
   });
 }
 
 function openFullscreenQR() {
-  const fs = document.getElementById("qrFullscreen");
   const big = document.getElementById("qrBig");
-  big.innerHTML = document.getElementById("qrcode").innerHTML;
-  fs.style.display = "flex";
+  big.innerHTML = "";
+  new QRCode(big, {
+    text: qrURL, width:320, height:320, correctLevel:QRCode.CorrectLevel.M
+  });
+  document.getElementById("qrFullscreen").style.display = "flex";
   document.documentElement.requestFullscreen?.();
   requestWakeLock();
 }
