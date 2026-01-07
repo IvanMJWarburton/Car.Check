@@ -1,44 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Vehicle Check Report</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-  background: #f5f7fa;
-  margin: 0;
-  padding: 16px;
-}
-
-.container {
-  max-width: 480px;
-  margin: auto;
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-
-h2 {
-  text-align: center;
-}
-
-hr {
-  margin: 20px 0;
-}
-
-ul {
-  padding-left: 18px;
-}
-
-small {
-  color: #555;
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -49,7 +15,7 @@ small {
 <div id="output"></div>
 
 <small>
-This report is advisory only and does not predict MOT outcome or vehicle safety.
+This report is advisory only and does not determine MOT outcome.
 </small>
 
 </div>
@@ -58,21 +24,34 @@ This report is advisory only and does not predict MOT outcome or vehicle safety.
 const params = new URLSearchParams(window.location.search);
 const data = JSON.parse(decodeURIComponent(params.get("data")));
 
+function treadBadge(value) {
+  if (!value) return "";
+  if (value < 1.6) return '<span class="badge bad">Illegal</span>';
+  if (value < 3) return '<span class="badge ok">Low / Advisory</span>';
+  return '<span class="badge good">Good</span>';
+}
+
 document.getElementById("output").innerHTML = `
-<p><strong>Vehicle:</strong> ${data.reg || "Not provided"}</p>
+<p><strong>Vehicle:</strong> ${data.reg}</p>
 <p><strong>MOT Expiry:</strong> ${data.motExpiry || "Not provided"}</p>
 
 <hr>
 
 <p><strong>Windscreen:</strong> ${data.windscreen}</p>
-<p><strong>Wiper Blades:</strong> ${data.wipers}</p>
+<p><strong>Wipers:</strong> ${data.wipers}</p>
 
-<h3>Tyre Tread Depths (mm)</h3>
+<h3>Tyres</h3>
+
+<p><strong>Driver Side (Right)</strong></p>
 <ul>
-  <li>Front Left: ${data.tread.FL || "-"}</li>
-  <li>Front Right: ${data.tread.FR || "-"}</li>
-  <li>Rear Left: ${data.tread.RL || "-"}</li>
-  <li>Rear Right: ${data.tread.RR || "-"}</li>
+  <li>Front Right: ${data.tyres.FR || "-"} mm ${treadBadge(data.tyres.FR)}</li>
+  <li>Rear Right: ${data.tyres.RR || "-"} mm ${treadBadge(data.tyres.RR)}</li>
+</ul>
+
+<p><strong>Passenger Side (Left)</strong></p>
+<ul>
+  <li>Front Left: ${data.tyres.FL || "-"} mm ${treadBadge(data.tyres.FL)}</li>
+  <li>Rear Left: ${data.tyres.RL || "-"} mm ${treadBadge(data.tyres.RL)}</li>
 </ul>
 
 <p><em>${data.advisory}</em></p>
