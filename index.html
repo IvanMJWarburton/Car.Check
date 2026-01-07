@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vehicle Visual Check</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+<style>
+body { font-family: Arial; max-width: 600px; margin: auto; }
+label { display: block; margin-top: 10px; }
+button { margin-top: 15px; padding: 10px; }
+</style>
+</head>
+
+<body>
+
+<h2>Vehicle Visual Check (Advisory)</h2>
+
+<label>Vehicle Reg:
+<input id="reg">
+</label>
+
+<label>Windscreen:
+<select id="windscreen">
+  <option>No visible issues</option>
+  <option>Chip/crack observed</option>
+</select>
+</label>
+
+<label>Wipers:
+<select id="wipers">
+  <option>No visible issues</option>
+  <option>Worn/damaged</option>
+</select>
+</label>
+
+<label>Front Left Tread (mm):
+<input id="fl" type="number" step="0.1">
+</label>
+
+<label>Front Right Tread (mm):
+<input id="fr" type="number" step="0.1">
+</label>
+
+<label>Rear Left Tread (mm):
+<input id="rl" type="number" step="0.1">
+</label>
+
+<label>Rear Right Tread (mm):
+<input id="rr" type="number" step="0.1">
+</label>
+
+<button onclick="generate()">Generate QR Code</button>
+
+<div id="qrcode"></div>
+
+<script>
+function generate() {
+  const report = {
+    reg: reg.value,
+    windscreen: windscreen.value,
+    wipers: wipers.value,
+    tread: {
+      FL: fl.value,
+      FR: fr.value,
+      RL: rl.value,
+      RR: rr.value
+    },
+    advisory: "Visual check only. Not an MOT or safety guarantee."
+  };
+
+  const data = encodeURIComponent(JSON.stringify(report));
+
+  document.getElementById("qrcode").innerHTML = "";
+  new QRCode(document.getElementById("qrcode"), {
+    text: "https://example.com/report.html?data=" + data,
+    width: 200,
+    height: 200
+  });
+}
+</script>
+
+</body>
+</html>

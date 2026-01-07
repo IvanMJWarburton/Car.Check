@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Vehicle Check Report</title>
+</head>
+<body>
+
+<h2>Vehicle Visual Check Report</h2>
+<div id="output"></div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const data = JSON.parse(decodeURIComponent(params.get("data")));
+
+document.getElementById("output").innerHTML = `
+<p><strong>Vehicle:</strong> ${data.reg}</p>
+<p><strong>Windscreen:</strong> ${data.windscreen}</p>
+<p><strong>Wipers:</strong> ${data.wipers}</p>
+<p><strong>Tread Depths (mm):</strong></p>
+<ul>
+<li>FL: ${data.tread.FL}</li>
+<li>FR: ${data.tread.FR}</li>
+<li>RL: ${data.tread.RL}</li>
+<li>RR: ${data.tread.RR}</li>
+</ul>
+<p><em>${data.advisory}</em></p>
+`;
+</script>
+
+</body>
+</html>
