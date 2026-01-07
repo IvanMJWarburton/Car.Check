@@ -8,6 +8,12 @@ function generate() {
     l: {
       d: { fl:d_fl.value, rl:d_rl.value, br:d_br.value, if:d_if.value, ir:d_ir.value, is:d_is.value },
       p: { fl:p_fl.value, rl:p_rl.value, br:p_br.value, if:p_if.value, ir:p_ir.value, is:p_is.value }
+    },
+    t: {
+      df: parseFloat(td_fl.value) || null,
+      dr: parseFloat(td_rl.value) || null,
+      pf: parseFloat(td_fr.value) || null,
+      pr: parseFloat(td_rr.value) || null
     }
   };
 
