@@ -31,6 +31,12 @@ function treadBadge(value) {
   return '<span class="badge good">Good</span>';
 }
 
+function lightBadge(value) {
+  return value === "Working"
+    ? '<span class="badge good">Working</span>'
+    : '<span class="badge ok">Issue noted</span>';
+}
+
 document.getElementById("output").innerHTML = `
 <p><strong>Vehicle:</strong> ${data.reg}</p>
 <p><strong>MOT Expiry:</strong> ${data.motExpiry || "Not provided"}</p>
@@ -53,6 +59,26 @@ document.getElementById("output").innerHTML = `
   <li>Front Left: ${data.tyres.FL || "-"} mm ${treadBadge(data.tyres.FL)}</li>
   <li>Rear Left: ${data.tyres.RL || "-"} mm ${treadBadge(data.tyres.RL)}</li>
 </ul>
+
+<h3>Lights</h3>
+
+<p><strong>Driver Side (Right)</strong></p>
+<ul>
+  <li>Front: ${lightBadge(data.lights.driver.front)}</li>
+  <li>Rear: ${lightBadge(data.lights.driver.rear)}</li>
+  <li>Brake: ${lightBadge(data.lights.driver.brake)}</li>
+  <li>Indicator: ${lightBadge(data.lights.driver.indicator)}</li>
+</ul>
+
+<p><strong>Passenger Side (Left)</strong></p>
+<ul>
+  <li>Front: ${lightBadge(data.lights.passenger.front)}</li>
+  <li>Rear: ${lightBadge(data.lights.passenger.rear)}</li>
+  <li>Brake: ${lightBadge(data.lights.passenger.brake)}</li>
+  <li>Indicator: ${lightBadge(data.lights.passenger.indicator)}</li>
+</ul>
+
+${data.lights.notes ? `<p><strong>Lighting notes:</strong> ${data.lights.notes}</p>` : ""}
 
 <p><em>${data.advisory}</em></p>
 `;
