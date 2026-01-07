@@ -61,6 +61,46 @@
 </div>
 </div>
 
+<div class="section">
+<h3>Lights Check</h3>
+
+<div class="side">
+<strong>Driver Side (Right)</strong>
+<label>Front Light
+  <select id="light_fr"><option>Working</option><option>Issue observed</option></select>
+</label>
+<label>Rear Light
+  <select id="light_rr"><option>Working</option><option>Issue observed</option></select>
+</label>
+<label>Brake Light
+  <select id="brake_r"><option>Working</option><option>Issue observed</option></select>
+</label>
+<label>Indicator
+  <select id="ind_r"><option>Working</option><option>Issue observed</option></select>
+</label>
+</div>
+
+<div class="side">
+<strong>Passenger Side (Left)</strong>
+<label>Front Light
+  <select id="light_fl"><option>Working</option><option>Issue observed</option></select>
+</label>
+<label>Rear Light
+  <select id="light_rl"><option>Working</option><option>Issue observed</option></select>
+</label>
+<label>Brake Light
+  <select id="brake_l"><option>Working</option><option>Issue observed</option></select>
+</label>
+<label>Indicator
+  <select id="ind_l"><option>Working</option><option>Issue observed</option></select>
+</label>
+</div>
+
+<label>Additional Lighting Notes (optional)
+  <textarea id="lightNotes" rows="3"></textarea>
+</label>
+</div>
+
 <button onclick="generate()">Generate QR Code</button>
 
 <div id="qrcode"></div>
@@ -83,6 +123,21 @@ function generate() {
       RR: rr.value,
       FL: fl.value,
       RL: rl.value
+    },
+    lights: {
+      driver: {
+        front: light_fr.value,
+        rear: light_rr.value,
+        brake: brake_r.value,
+        indicator: ind_r.value
+      },
+      passenger: {
+        front: light_fl.value,
+        rear: light_rl.value,
+        brake: brake_l.value,
+        indicator: ind_l.value
+      },
+      notes: lightNotes.value
     },
     advisory: "Visual check only. Not an MOT or safety guarantee."
   };
