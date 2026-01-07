@@ -1,75 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Vehicle Visual Check</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<meta charset="UTF-8">
+<title>Vehicle Visual Check</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 </head>
-<body>
 
-<h1>Vehicle Visual Check</h1>
+<body>
+<div class="container">
+
+<h2>Vehicle Visual Check</h2>
 
 <label>Registration
-  <input id="reg" placeholder="AB12 CDE">
+  <input id="reg" style="text-transform: uppercase">
 </label>
 
-<h2>Windscreen</h2>
-<select id="windscreen">
-  <option>Clear</option>
-  <option>Chip / crack observed</option>
-</select>
+<div class="section">
+<label>Windscreen
+  <select id="windscreen">
+    <option value="W">Clear</option>
+    <option value="I">Chip / crack observed</option>
+  </select>
+</label>
 
-<h2>Wiper Blades</h2>
-<select id="wipers">
-  <option>Good condition</option>
-  <option>Worn / damaged</option>
-</select>
+<label>Wipers
+  <select id="wipers">
+    <option value="W">Good</option>
+    <option value="I">Worn / damaged</option>
+  </select>
+</label>
+</div>
 
-<h2>Lights & Indicators</h2>
+<div class="section">
+<h3>Lights</h3>
 
 <div class="side">
-  <h3>Driver Side</h3>
-  <label>Front light <select id="light_fr"><option>Working</option><option>Issue observed</option></select></label>
-  <label>Rear light <select id="light_rr"><option>Working</option><option>Issue observed</option></select></label>
-  <label>Brake light <select id="brake_r"><option>Working</option><option>Issue observed</option></select></label>
-
-  <label>Front indicator <select id="ind_rf"><option>Working</option><option>Issue observed</option></select></label>
-  <label>Rear indicator <select id="ind_rr"><option>Working</option><option>Issue observed</option></select></label>
-  <label>Side repeater <select id="ind_rs"><option>Working</option><option>Issue observed</option></select></label>
+<strong>Driver Side</strong>
+<label>Front light <select id="d_fl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+<label>Rear light <select id="d_rl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+<label>Brake light <select id="d_br"><option value="W">Working</option><option value="I">Issue</option></select></label>
+<label>Front indicator <select id="d_if"><option value="W">Working</option><option value="I">Issue</option></select></label>
+<label>Rear indicator <select id="d_ir"><option value="W">Working</option><option value="I">Issue</option></select></label>
+<label>Side repeater <select id="d_is"><option value="W">Working</option><option value="I">Issue</option></select></label>
 </div>
 
 <div class="side">
-  <h3>Passenger Side</h3>
-  <label>Front light <select id="light_fl"><option>Working</option><option>Issue observed</option></select></label>
-  <label>Rear light <select id="light_rl"><option>Working</option><option>Issue observed</option></select></label>
-  <label>Brake light <select id="brake_l"><option>Working</option><option>Issue observed</option></select></label>
-
-  <label>Front indicator <select id="ind_lf"><option>Working</option><option>Issue observed</option></select></label>
-  <label>Rear indicator <select id="ind_lr"><option>Working</option><option>Issue observed</option></select></label>
-  <label>Side repeater <select id="ind_ls"><option>Working</option><option>Issue observed</option></select></label>
+<strong>Passenger Side</strong>
+<label>Front light <select id="p_fl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+<label>Rear light <select id="p_rl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+<label>Brake light <select id="p_br"><option value="W">Working</option><option value="I">Issue</option></select></label>
+<label>Front indicator <select id="p_if"><option value="W">Working</option><option value="I">Issue</option></select></label>
+<label>Rear indicator <select id="p_ir"><option value="W">Working</option><option value="I">Issue</option></select></label>
+<label>Side repeater <select id="p_is"><option value="W">Working</option><option value="I">Issue</option></select></label>
 </div>
-
-<h2>Tyre Tread Depth (mm)</h2>
-
-<table>
-  <tr><th></th><th>Front</th><th>Rear</th></tr>
-  <tr><td>Driver</td>
-    <td><input id="td_fl" type="number" step="0.1"></td>
-    <td><input id="td_rl" type="number" step="0.1"></td>
-  </tr>
-  <tr><td>Passenger</td>
-    <td><input id="td_fr" type="number" step="0.1"></td>
-    <td><input id="td_rr" type="number" step="0.1"></td>
-  </tr>
-</table>
-
-<h2>Notes</h2>
-<textarea id="notes"></textarea>
+</div>
 
 <button onclick="generate()">Generate QR Code</button>
 
 <div id="qrcode"></div>
+
+<small>Visual check only. Not an MOT or safety guarantee.</small>
+
+</div>
 
 <script src="script.js"></script>
 </body>
