@@ -1,157 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Vehicle Visual Check</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Vehicle Visual Check</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
-
 <body>
-<div class="container">
 
-<h2>Vehicle Visual Check (Advisory)</h2>
+<h1>Vehicle Visual Check</h1>
 
-<label>Vehicle Registration
-  <input id="reg">
+<label>Registration
+  <input id="reg" placeholder="AB12 CDE">
 </label>
 
-<label>MOT Expiry Date
-  <input id="motDate" type="date">
-</label>
+<h2>Windscreen</h2>
+<select id="windscreen">
+  <option>Clear</option>
+  <option>Chip / crack observed</option>
+</select>
 
-<div class="section">
-<label>Windscreen
-  <select id="windscreen">
-    <option>No visible issues</option>
-    <option>Chip/crack observed</option>
-  </select>
-</label>
+<h2>Wiper Blades</h2>
+<select id="wipers">
+  <option>Good condition</option>
+  <option>Worn / damaged</option>
+</select>
 
-<label>Wiper Blades
-  <select id="wipers">
-    <option>No visible issues</option>
-    <option>Worn/damaged</option>
-  </select>
-</label>
-</div>
-
-<div class="section">
-<h3>Tyre Tread Depths (mm)</h3>
+<h2>Lights & Indicators</h2>
 
 <div class="side">
-<strong>Driver Side (Right)</strong>
-<label>Front Right
-  <input id="fr" type="number" step="0.1">
-</label>
-<label>Rear Right
-  <input id="rr" type="number" step="0.1">
-</label>
+  <h3>Driver Side</h3>
+  <label>Front light <select id="light_fr"><option>Working</option><option>Issue observed</option></select></label>
+  <label>Rear light <select id="light_rr"><option>Working</option><option>Issue observed</option></select></label>
+  <label>Brake light <select id="brake_r"><option>Working</option><option>Issue observed</option></select></label>
+
+  <label>Front indicator <select id="ind_rf"><option>Working</option><option>Issue observed</option></select></label>
+  <label>Rear indicator <select id="ind_rr"><option>Working</option><option>Issue observed</option></select></label>
+  <label>Side repeater <select id="ind_rs"><option>Working</option><option>Issue observed</option></select></label>
 </div>
 
 <div class="side">
-<strong>Passenger Side (Left)</strong>
-<label>Front Left
-  <input id="fl" type="number" step="0.1">
-</label>
-<label>Rear Left
-  <input id="rl" type="number" step="0.1">
-</label>
-</div>
+  <h3>Passenger Side</h3>
+  <label>Front light <select id="light_fl"><option>Working</option><option>Issue observed</option></select></label>
+  <label>Rear light <select id="light_rl"><option>Working</option><option>Issue observed</option></select></label>
+  <label>Brake light <select id="brake_l"><option>Working</option><option>Issue observed</option></select></label>
+
+  <label>Front indicator <select id="ind_lf"><option>Working</option><option>Issue observed</option></select></label>
+  <label>Rear indicator <select id="ind_lr"><option>Working</option><option>Issue observed</option></select></label>
+  <label>Side repeater <select id="ind_ls"><option>Working</option><option>Issue observed</option></select></label>
 </div>
 
-<div class="section">
-<h3>Lights Check</h3>
+<h2>Tyre Tread Depth (mm)</h2>
 
-<div class="side">
-<strong>Driver Side (Right)</strong>
-<label>Front Light
-  <select id="light_fr"><option>Working</option><option>Issue observed</option></select>
-</label>
-<label>Rear Light
-  <select id="light_rr"><option>Working</option><option>Issue observed</option></select>
-</label>
-<label>Brake Light
-  <select id="brake_r"><option>Working</option><option>Issue observed</option></select>
-</label>
-<label>Indicator
-  <select id="ind_r"><option>Working</option><option>Issue observed</option></select>
-</label>
-</div>
+<table>
+  <tr><th></th><th>Front</th><th>Rear</th></tr>
+  <tr><td>Driver</td>
+    <td><input id="td_fl" type="number" step="0.1"></td>
+    <td><input id="td_rl" type="number" step="0.1"></td>
+  </tr>
+  <tr><td>Passenger</td>
+    <td><input id="td_fr" type="number" step="0.1"></td>
+    <td><input id="td_rr" type="number" step="0.1"></td>
+  </tr>
+</table>
 
-<div class="side">
-<strong>Passenger Side (Left)</strong>
-<label>Front Light
-  <select id="light_fl"><option>Working</option><option>Issue observed</option></select>
-</label>
-<label>Rear Light
-  <select id="light_rl"><option>Working</option><option>Issue observed</option></select>
-</label>
-<label>Brake Light
-  <select id="brake_l"><option>Working</option><option>Issue observed</option></select>
-</label>
-<label>Indicator
-  <select id="ind_l"><option>Working</option><option>Issue observed</option></select>
-</label>
-</div>
-
-<label>Additional Lighting Notes (optional)
-  <textarea id="lightNotes" rows="3"></textarea>
-</label>
-</div>
+<h2>Notes</h2>
+<textarea id="notes"></textarea>
 
 <button onclick="generate()">Generate QR Code</button>
 
 <div id="qrcode"></div>
 
-<small>
-Visual check only. Not an MOT, inspection, or safety guarantee.
-</small>
-
-</div>
-
-<script>
-function generate() {
-  const report = {
-    reg: reg.value,
-    motExpiry: motDate.value,
-    windscreen: windscreen.value,
-    wipers: wipers.value,
-    tyres: {
-      FR: fr.value,
-      RR: rr.value,
-      FL: fl.value,
-      RL: rl.value
-    },
-    lights: {
-      driver: {
-        front: light_fr.value,
-        rear: light_rr.value,
-        brake: brake_r.value,
-        indicator: ind_r.value
-      },
-      passenger: {
-        front: light_fl.value,
-        rear: light_rl.value,
-        brake: brake_l.value,
-        indicator: ind_l.value
-      },
-      notes: lightNotes.value
-    },
-    advisory: "Visual check only. Not an MOT or safety guarantee."
-  };
-
-  const data = encodeURIComponent(JSON.stringify(report));
-  document.getElementById("qrcode").innerHTML = "";
-
-  new QRCode(document.getElementById("qrcode"), {
-    text: "https://ivanmjwarburton.github.io/Car.Check/report.html?data=" + data,
-    width: 220,
-    height: 220
-  });
-}
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
