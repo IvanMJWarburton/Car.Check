@@ -3,83 +3,64 @@
 <head>
 <meta charset="UTF-8">
 <title>Vehicle Check Report</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="style.css">
+<style>
+body { font-family: Arial; max-width: 700px; margin: auto; padding: 16px; }
+.bad { color: red; }
+.warn { color: orange; }
+.good { color: green; }
+</style>
 </head>
-
 <body>
-<div class="container">
 
-<h2>Vehicle Visual Check Report</h2>
-
-<div id="output"></div>
-
-<small>
-This report is advisory only and does not determine MOT outcome.
-</small>
-
-</div>
+<h1>Vehicle Check Report</h1>
+<div id="report"></div>
 
 <script>
 const params = new URLSearchParams(window.location.search);
 const data = JSON.parse(decodeURIComponent(params.get("data")));
 
-function treadBadge(value) {
-  if (!value) return "";
-  if (value < 1.6) return '<span class="badge bad">Illegal</span>';
-  if (value < 3) return '<span class="badge ok">Low / Advisory</span>';
-  return '<span class="badge good">Good</span>';
+function badge(text) {
+  if (text.includes("Illegal")) return `<span class="bad">${text}</span>`;
+  if (text.includes("Low") || text.includes("Issue")) return `<span class="warn">${text}</span>`;
+  return `<span class="good">${text}</span>`;
 }
 
-function lightBadge(value) {
-  return value === "Working"
-    ? '<span class="badge good">Working</span>'
-    : '<span class="badge ok">Issue noted</span>';
-}
-
-document.getElementById("output").innerHTML = `
-<p><strong>Vehicle:</strong> ${data.reg}</p>
-<p><strong>MOT Expiry:</strong> ${data.motExpiry || "Not provided"}</p>
-
-<hr>
+document.getElementById("report").innerHTML = `
+<p><strong>Registration:</strong> ${data.reg}</p>
 
 <p><strong>Windscreen:</strong> ${data.windscreen}</p>
 <p><strong>Wipers:</strong> ${data.wipers}</p>
 
+<h3>Driver Side</h3>
+<p>Front light: ${badge(data.lights.driver.front)}</p>
+<p>Rear light: ${badge(data.lights.driver.rear)}</p>
+<p>Brake light: ${badge(data.lights.driver.brake)}</p>
+<p>Indicators:</p>
+<ul>
+  <li>Front: ${badge(data.lights.driver.indicators.front)}</li>
+  <li>Rear: ${badge(data.lights.driver.indicators.rear)}</li>
+  <li>Side: ${badge(data.lights.driver.indicators.side)}</li>
+</ul>
+
+<h3>Passenger Side</h3>
+<p>Front light: ${badge(data.lights.passenger.front)}</p>
+<p>Rear light: ${badge(data.lights.passenger.rear)}</p>
+<p>Brake light: ${badge(data.lights.passenger.brake)}</p>
+<p>Indicators:</p>
+<ul>
+  <li>Front: ${badge(data.lights.passenger.indicators.front)}</li>
+  <li>Rear: ${badge(data.lights.passenger.indicators.rear)}</li>
+  <li>Side: ${badge(data.lights.passenger.indicators.side)}</li>
+</ul>
+
 <h3>Tyres</h3>
+<p>Driver front: ${badge(data.tread.driver.front)}</p>
+<p>Driver rear: ${badge(data.tread.driver.rear)}</p>
+<p>Passenger front: ${badge(data.tread.passenger.front)}</p>
+<p>Passenger rear: ${badge(data.tread.passenger.rear)}</p>
 
-<p><strong>Driver Side (Right)</strong></p>
-<ul>
-  <li>Front Right: ${data.tyres.FR || "-"} mm ${treadBadge(data.tyres.FR)}</li>
-  <li>Rear Right: ${data.tyres.RR || "-"} mm ${treadBadge(data.tyres.RR)}</li>
-</ul>
-
-<p><strong>Passenger Side (Left)</strong></p>
-<ul>
-  <li>Front Left: ${data.tyres.FL || "-"} mm ${treadBadge(data.tyres.FL)}</li>
-  <li>Rear Left: ${data.tyres.RL || "-"} mm ${treadBadge(data.tyres.RL)}</li>
-</ul>
-
-<h3>Lights</h3>
-
-<p><strong>Driver Side (Right)</strong></p>
-<ul>
-  <li>Front: ${lightBadge(data.lights.driver.front)}</li>
-  <li>Rear: ${lightBadge(data.lights.driver.rear)}</li>
-  <li>Brake: ${lightBadge(data.lights.driver.brake)}</li>
-  <li>Indicator: ${lightBadge(data.lights.driver.indicator)}</li>
-</ul>
-
-<p><strong>Passenger Side (Left)</strong></p>
-<ul>
-  <li>Front: ${lightBadge(data.lights.passenger.front)}</li>
-  <li>Rear: ${lightBadge(data.lights.passenger.rear)}</li>
-  <li>Brake: ${lightBadge(data.lights.passenger.brake)}</li>
-  <li>Indicator: ${lightBadge(data.lights.passenger.indicator)}</li>
-</ul>
-
-${data.lights.notes ? `<p><strong>Lighting notes:</strong> ${data.lights.notes}</p>` : ""}
-
+<p><strong>Notes:</strong> ${data.notes || "None"}</p>
+<hr>
 <p><em>${data.advisory}</em></p>
 `;
 </script>
