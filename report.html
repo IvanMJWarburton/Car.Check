@@ -9,39 +9,35 @@
 
 <body>
 <div class="container">
-
 <h2>Vehicle Check Report</h2>
 <div id="report"></div>
-
 <small>Visual check only. Not an MOT or safety guarantee.</small>
-
 </div>
 
 <script>
-const params = new URLSearchParams(window.location.search);
-const raw = params.get("d");
-
+const raw = new URLSearchParams(location.search).get("d");
 if (!raw) {
   document.getElementById("report").innerHTML = "<p>No report data.</p>";
 } else {
   const d = JSON.parse(decodeURIComponent(raw));
 
-  const map = v => v === "W"
-    ? '<span class="badge good">Working</span>'
-    : '<span class="badge warn">Issue</span>';
+  const badge = v =>
+    v==="W" ? '<span class="good">Working</span>' :
+              '<span class="warn">Issue observed</span>';
 
-  function tyre(mm) {
-    if (mm === null) return "Not checked";
-    if (mm < 1.6) return `<span class="badge bad">${mm} mm – Illegal</span>`;
-    if (mm < 3) return `<span class="badge warn">${mm} mm – Low</span>`;
-    return `<span class="badge good">${mm} mm – Good</span>`;
-  }
+  const tyre = m =>
+    m==null ? "Not checked" :
+    m<1.6 ? `<span class="bad">${m}mm Illegal</span>` :
+    m<3 ? `<span class="warn">${m}mm Low</span>` :
+          `<span class="good">${m}mm Good</span>`;
 
-  document.getElementById("report").innerHTML = `
+  let html = `
     <p><strong>Registration:</strong> ${d.r}</p>
+    <p><strong>MOT Expiry:</strong> ${d.m || "Not recorded"}</p>
 
-    <p><strong>Windscreen:</strong> ${map(d.w)}</p>
-    <p><strong>Wipers:</strong> ${map(d.wp)}</p>
+    <h3>Windscreen & Wipers</h3>
+    <p>Windscreen: ${badge(d.w)}</p>
+    <p>Wipers: ${badge(d.wp)}</p>
 
     <h3>Tyres</h3>
     <ul>
@@ -50,29 +46,17 @@ if (!raw) {
       <li>Passenger Front: ${tyre(d.t.pf)}</li>
       <li>Passenger Rear: ${tyre(d.t.pr)}</li>
     </ul>
-
-    <h3>Lights – Driver Side</h3>
-    <ul>
-      <li>Front light ${map(d.l.d.fl)}</li>
-      <li>Rear light ${map(d.l.d.rl)}</li>
-      <li>Brake light ${map(d.l.d.br)}</li>
-      <li>Front indicator ${map(d.l.d.if)}</li>
-      <li>Rear indicator ${map(d.l.d.ir)}</li>
-      <li>Side repeater ${map(d.l.d.is)}</li>
-    </ul>
-
-    <h3>Lights – Passenger Side</h3>
-    <ul>
-      <li>Front light ${map(d.l.p.fl)}</li>
-      <li>Rear light ${map(d.l.p.rl)}</li>
-      <li>Brake light ${map(d.l.p.br)}</li>
-      <li>Front indicator ${map(d.l.p.if)}</li>
-      <li>Rear indicator ${map(d.l.p.ir)}</li>
-      <li>Side repeater ${map(d.l.p.is)}</li>
-    </ul>
   `;
+
+  if (d.n && d.n.trim()) {
+    html += `
+      <h3>Additional Lighting Observations</h3>
+      <p>${d.n}</p>
+    `;
+  }
+
+  document.getElementById("report").innerHTML = html;
 }
 </script>
-
 </body>
 </html>
