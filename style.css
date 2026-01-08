@@ -1,102 +1,119 @@
+* { box-sizing: border-box; }
+
 body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+  background: #f5f7fa;
   margin: 0;
-  font-family: system-ui, sans-serif;
-  background: #f3f3f3;
+  padding: 12px;
 }
 
 .container {
-  max-width: 420px;
+  max-width: 520px;
   margin: auto;
+  background: #ffffff;
   padding: 16px;
-  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+h2, h3 {
+  text-align: center;
+  margin: 10px 0;
 }
 
 label {
-  font-weight: 600;
-  margin-top: 12px;
   display: block;
+  font-size: 14px;
+  margin-bottom: 10px;
 }
 
-input, select, textarea, button {
+input, select, textarea {
   width: 100%;
   padding: 10px;
-  margin-top: 6px;
-  margin-bottom: 10px;
   font-size: 16px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  margin-top: 4px;
+}
+
+textarea { resize: vertical; }
+
+.section { margin-top: 18px; }
+
+.side {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 14px;
 }
 
 button {
-  background: #000;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-}
-
-.grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.stack select {
-  margin-bottom: 12px;
-}
-
-#windscreen-container {
-  position: relative;
-  max-width: 100%;
-  margin: 10px auto;
-  touch-action: manipulation;
-}
-
-#windscreen-container img {
   width: 100%;
-  border-radius: 8px;
-  display: block;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 12px;
+  border: none;
+  background: #2563eb;
+  color: white;
 }
 
-#marker-layer {
+#qrcode {
+  width: 200px;
+  height: 200px;
+  margin: 16px auto;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+.good { background: #dcfce7; color: #166534; }
+.warn { background: #ffedd5; color: #9a3412; }
+.bad  { background: #fee2e2; color: #991b1b; }
+
+li { margin-bottom: 8px; line-height: 1.4; }
+
+small {
+  display: block;
+  margin-top: 14px;
+  font-size: 12px;
+  color: #555;
+  text-align: center;
+}
+
+/* ---------- Windscreen Mapping ---------- */
+
+#windscreen-map {
+  position: relative;
+  margin: 12px auto;
+  max-width: 100%;
+}
+
+#windscreen-map img {
+  width: 100%;
+  display: block;
+  border-radius: 12px;
+}
+
+#ws-layer {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
 
 .ws-marker {
+  position: absolute;
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  position: absolute;
   transform: translate(-50%, -50%);
   border: 2px solid #000;
 }
 
-.ws-chip { background: #f4c430; }
-.ws-crack { background: #d32f2f; }
-
-.hint {
-  font-size: 0.85em;
-  text-align: center;
-  opacity: 0.7;
-}
-
-/* ---------- QR FULLSCREEN SUPPORT (SAFE ADDITION) ---------- */
-
-#qr-wrap {
-  text-align: center;
-}
-
-#qr canvas,
-#qr img {
-  max-width: 100%;
-  height: auto;
-}
-
-.qr-fullscreen {
-  position: fixed;
-  inset: 0;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
+.ws-chip { background: #facc15; }   /* yellow */
+.ws-crack { background: #dc2626; }  /* red */
