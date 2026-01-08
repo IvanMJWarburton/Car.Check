@@ -7,44 +7,21 @@
 
 <link rel="stylesheet" href="style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-<style>
-#qrWrapper { display:none; text-align:center; margin-top:20px; }
-
-#qrFullscreen {
-  display:none;
-  position:fixed;
-  inset:0;
-  background:white;
-  z-index:9999;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-}
-#qrFullscreen small { margin-top:12px; opacity:0.7; }
-</style>
 </head>
 
 <body>
 <div class="container">
 
 <h2>Vehicle Visual Check</h2>
-  
- <div id="ws-popup" aria-hidden="true">
+
+<!-- Windscreen popup -->
+<div id="ws-popup" aria-hidden="true">
   <div class="ws-dialog" onclick="event.stopPropagation()">
     <p class="ws-title">Windscreen Damage</p>
 
-    <button class="ws-btn chip" onclick="selectWsType('chip')">
-      Mark Chip
-    </button>
-
-    <button class="ws-btn crack" onclick="selectWsType('crack')">
-      Mark Crack
-    </button>
-
-    <button class="ws-btn cancel" onclick="selectWsType('cancel')">
-      Cancel
-    </button>
+    <button class="ws-btn chip" onclick="selectWsType('chip')">Mark Chip</button>
+    <button class="ws-btn crack" onclick="selectWsType('crack')">Mark Crack</button>
+    <button class="ws-btn cancel" onclick="selectWsType('cancel')">Cancel</button>
   </div>
 </div>
 
@@ -112,6 +89,7 @@
 </div>
 
 <small>Visual check only. Not an MOT or safety guarantee.</small>
+
 </div>
 
 <div id="qrFullscreen" onclick="closeFullscreenQR()">
@@ -122,44 +100,52 @@
 <script>
 let qrURL = "";
 let wakeLock = null;
-  
+
+/* ---------------- Windscreen mapping ---------------- */
+
 const wsMarks = [];
 const wsMap = document.getElementById("windscreen-map");
 const wsLayer = document.getElementById("ws-layer");
+const wsPopup = document.getElementById("ws-popup");
 
 let pendingClick = null;
-let popupReady = false;
+let popupOpen = false;
+let allowPopupClick = false;
 
 wsMap.addEventListener("pointerdown", e => {
-  e.preventDefault();
-  e.stopPropagation();
+  if (popupOpen) return;
 
   const rect = wsMap.getBoundingClientRect();
-  const x = ((e.clientX - rect.left) / rect.width) * 100;
-  const y = ((e.clientY - rect.top) / rect.height) * 100;
+  pendingClick = {
+    x: ((e.clientX - rect.left) / rect.width) * 100,
+    y: ((e.clientY - rect.top) / rect.height) * 100
+  };
 
-  pendingClick = { x, y };
+  popupOpen = true;
+  allowPopupClick = false;
+  wsPopup.style.display = "flex";
+  document.body.style.overflow = "hidden";
 
-  popupReady = false;
-  const popup = document.getElementById("ws-popup");
-  popup.style.display = "flex";
-  popup.style.pointerEvents = "none";
-
-  // allow popup interaction NEXT frame only
-  requestAnimationFrame(() => {
-    popup.style.pointerEvents = "auto";
-    popupReady = true;
-  });
+  setTimeout(() => allowPopupClick = true, 120);
 });
 
+wsPopup.addEventListener("click", () => {
+  closePopup();
+});
+
+function closePopup() {
+  wsPopup.style.display = "none";
+  popupOpen = false;
+  allowPopupClick = false;
+  pendingClick = null;
+  document.body.style.overflow = "";
+}
+
 function selectWsType(type) {
-  if (!popupReady) return;
+  if (!allowPopupClick) return;
 
-  const popup = document.getElementById("ws-popup");
-  popup.style.display = "none";
-
-  if (type === "cancel" || !pendingClick) {
-    pendingClick = null;
+  if (type === "cancel") {
+    closePopup();
     return;
   }
 
@@ -171,7 +157,7 @@ function selectWsType(type) {
 
   wsMarks.push(mark);
   renderWsMarker(mark);
-  pendingClick = null;
+  closePopup();
 }
 
 function renderWsMarker(m) {
@@ -179,8 +165,10 @@ function renderWsMarker(m) {
   el.className = `ws-marker ws-${m.t}`;
   el.style.left = m.x + "%";
   el.style.top = m.y + "%";
-  wsLayer.appendCthathild(el);
+  wsLayer.appendChild(el);
 }
+
+/* ---------------- QR generation ---------------- */
 
 async function requestWakeLock() {
   try { wakeLock = await navigator.wakeLock.request("screen"); } catch {}
@@ -195,7 +183,12 @@ function generate() {
     ws: wsMarks,
     wp: wipers.value,
     n: lightNotes.value,
-    t:{df:+td_df.value||null,dr:+td_dr.value||null,pf:+td_pf.value||null,pr:+td_pr.value||null},
+    t:{
+      df:+td_df.value||null,
+      dr:+td_dr.value||null,
+      pf:+td_pf.value||null,
+      pr:+td_pr.value||null
+    },
     l:{
       d:{fl:d_fl.value,rl:d_rl.value,br:d_br.value,if:d_if.value,ir:d_ir.value,is:d_is.value},
       p:{fl:p_fl.value,rl:p_rl.value,br:p_br.value,if:p_if.value,ir:p_ir.value,is:p_is.value}
@@ -208,25 +201,20 @@ function generate() {
   document.getElementById("qrWrapper").style.display = "block";
   document.getElementById("qrcode").innerHTML = "";
 
-  new QRCode(document.getElementById("qrcode"), {
-    text: qrURL, width:180, height:180, correctLevel:QRCode.CorrectLevel.M
-  });
+  new QRCode(qrcode, { text: qrURL, width:180, height:180 });
 }
 
 function openFullscreenQR() {
-  const big = document.getElementById("qrBig");
-  big.innerHTML = "";
-  new QRCode(big, {
-    text: qrURL, width:320, height:320, correctLevel:QRCode.CorrectLevel.M
-  });
-  document.getElementById("qrFullscreen").style.display = "flex";
+  qrBig.innerHTML = "";
+  new QRCode(qrBig, { text: qrURL, width:320, height:320 });
+  qrFullscreen.style.display = "flex";
   document.documentElement.requestFullscreen?.();
   requestWakeLock();
 }
 
 function closeFullscreenQR() {
   document.exitFullscreen?.();
-  document.getElementById("qrFullscreen").style.display = "none";
+  qrFullscreen.style.display = "none";
   wakeLock?.release?.();
 }
 </script>
