@@ -2,121 +2,185 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Vehicle Check</title>
+<title>Vehicle Visual Check</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+#qrWrapper { display:none; text-align:center; margin-top:20px; }
+
+#qrFullscreen {
+  display:none;
+  position:fixed;
+  inset:0;
+  background:white;
+  z-index:9999;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+}
+#qrFullscreen small { margin-top:12px; opacity:0.7; }
+</style>
 </head>
 
 <body>
 <div class="container">
 
-<h2>Vehicle Check</h2>
+<h2>Vehicle Visual Check</h2>
 
-<label>Registration</label>
-<input id="reg" maxlength="8" placeholder="AB12CDE"
-       oninput="this.value=this.value.toUpperCase()">
+<label>Registration
+  <input id="reg" maxlength="8" style="text-transform:uppercase">
+</label>
 
-<label>MOT Expiry Date</label>
-<input id="mot" type="date">
+<label>MOT Expiry Date
+  <input type="date" id="mot">
+</label>
 
-<h3>Windscreen Damage Mapping</h3>
+<h3>Windscreen Damage Map</h3>
 
-<div id="windscreen-container">
-  <img src="windscreen.jpeg" alt="Windscreen">
-  <div id="marker-layer"></div>
+<div id="windscreen-map">
+  <img src="windscreen.jpg" alt="Windscreen">
+  <div id="ws-layer"></div>
 </div>
 
-<p class="hint">Tap the windscreen to mark a chip or crack</p>
+<small>Tap the windscreen to mark a chip or crack</small>
 
-<h3>Windscreen & Wipers</h3>
-<select id="windscreen">
-  <option value="N">No issues found</option>
-  <option value="W">Issue observed</option>
-</select>
-
-<select id="wipers">
-  <option value="N">No issues found</option>
-  <option value="W">Issue observed</option>
-</select>
+<label>Wipers
+  <select id="wipers">
+    <option value="W">Working</option>
+    <option value="I">Worn / damaged</option>
+  </select>
+</label>
 
 <h3>Tyre Tread Depth (mm)</h3>
-<div class="grid-2">
-  <input id="df" placeholder="Driver Front">
-  <input id="dr" placeholder="Driver Rear">
-  <input id="pf" placeholder="Passenger Front">
-  <input id="pr" placeholder="Passenger Rear">
+<div class="grid">
+  <label>Driver Front <input type="number" step="0.1" id="td_df"></label>
+  <label>Driver Rear <input type="number" step="0.1" id="td_dr"></label>
+  <label>Passenger Front <input type="number" step="0.1" id="td_pf"></label>
+  <label>Passenger Rear <input type="number" step="0.1" id="td_pr"></label>
 </div>
 
-<h3>Lights</h3>
-<div class="stack">
-  <label>Driver Front Light</label><select id="d_fl"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Driver Rear Light</label><select id="d_rl"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Driver Brake Light</label><select id="d_br"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Driver Indicator (Front)</label><select id="d_if"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Driver Indicator (Rear)</label><select id="d_ir"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Driver Side Repeater</label><select id="d_is"><option value="W">Working</option><option value="F">Issue</option></select>
+<h3>Lights – Driver Side</h3>
+<div class="grid">
+  <label>Front <select id="d_fl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Rear <select id="d_rl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Brake <select id="d_br"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Indicator Front <select id="d_if"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Indicator Rear <select id="d_ir"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Side Repeater <select id="d_is"><option value="W">Working</option><option value="I">Issue</option></select></label>
+</div>
 
-  <label>Passenger Front Light</label><select id="p_fl"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Passenger Rear Light</label><select id="p_rl"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Passenger Brake Light</label><select id="p_br"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Passenger Indicator (Front)</label><select id="p_if"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Passenger Indicator (Rear)</label><select id="p_ir"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Passenger Side Repeater</label><select id="p_is"><option value="W">Working</option><option value="F">Issue</option></select>
+<h3>Lights – Passenger Side</h3>
+<div class="grid">
+  <label>Front <select id="p_fl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Rear <select id="p_rl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Brake <select id="p_br"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Indicator Front <select id="p_if"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Indicator Rear <select id="p_ir"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Side Repeater <select id="p_is"><option value="W">Working</option><option value="I">Issue</option></select></label>
 </div>
 
 <h3>Additional / Extra Lighting Observations</h3>
-<textarea id="notes" placeholder="Optional notes"></textarea>
+<textarea id="lightNotes" rows="3"
+  placeholder="e.g. DRL strip partially out, light bar not working"></textarea>
 
-<button onclick="generate()">Generate QR</button>
+<button onclick="generate()">Generate QR Code</button>
 
-<div id="qr-wrap" hidden>
-  <div id="qr"></div>
+<div id="qrWrapper">
+  <div id="qrcode" onclick="openFullscreenQR()"></div>
+  <small>Tap QR to enlarge for scanning</small>
 </div>
 
+<small>Visual check only. Not an MOT or safety guarantee.</small>
+</div>
+
+<div id="qrFullscreen" onclick="closeFullscreenQR()">
+  <div id="qrBig"></div>
+  <small>Increase screen brightness for best scanning</small>
 </div>
 
 <script>
+let qrURL = "";
+let wakeLock = null;
+  
 const wsMarks = [];
-const container = document.getElementById("windscreen-container");
-const markerLayer = document.getElementById("marker-layer");
+const wsMap = document.getElementById("windscreen-map");
+const wsLayer = document.getElementById("ws-layer");
 
-container.addEventListener("pointerdown", e => {
-  const rect = container.getBoundingClientRect();
+wsMap.addEventListener("pointerdown", e => {
+  const rect = wsMap.getBoundingClientRect();
   const x = ((e.clientX - rect.left) / rect.width) * 100;
   const y = ((e.clientY - rect.top) / rect.height) * 100;
 
   const type = confirm("OK = Chip\nCancel = Crack") ? "chip" : "crack";
 
-  wsMarks.push({ x: Math.round(x), y: Math.round(y), t: type });
+  const mark = {
+    x: Math.round(x),
+    y: Math.round(y),
+    t: type
+  };
 
-  const m = document.createElement("div");
-  m.className = `ws-marker ws-${type}`;
-  m.style.left = x + "%";
-  m.style.top = y + "%";
-  markerLayer.appendChild(m);
+  wsMarks.push(mark);
+  renderWsMarker(mark);
 });
 
+function renderWsMarker(m) {
+  const el = document.createElement("div");
+  el.className = `ws-marker ws-${m.t}`;
+  el.style.left = m.x + "%";
+  el.style.top = m.y + "%";
+  wsLayer.appendChild(el);
+}
+
+async function requestWakeLock() {
+  try { wakeLock = await navigator.wakeLock.request("screen"); } catch {}
+}
+
 function generate() {
+  reg.value = reg.value.toUpperCase();
+
   const data = {
     r: reg.value,
     m: mot.value,
-    d: new Date().toISOString(),
-    ws: wsMarks,
     w: windscreen.value,
+    ws: wsMarks,
     wp: wipers.value,
-    t: { df: df.value, dr: dr.value, pf: pf.value, pr: pr.value },
-    l: {
+    n: lightNotes.value,
+    t:{df:+td_df.value||null,dr:+td_dr.value||null,pf:+td_pf.value||null,pr:+td_pr.value||null},
+    l:{
       d:{fl:d_fl.value,rl:d_rl.value,br:d_br.value,if:d_if.value,ir:d_ir.value,is:d_is.value},
       p:{fl:p_fl.value,rl:p_rl.value,br:p_br.value,if:p_if.value,ir:p_ir.value,is:p_is.value}
-    },
-    n: notes.value
+    }
   };
 
-  const url = "report.html?d=" + encodeURIComponent(JSON.stringify(data));
-  qr.innerHTML = "";
-  new QRCode(qr, { text: url, width: 200, height: 200 });
-  document.getElementById("qr-wrap").hidden = false;
+  qrURL = "https://ivanmjwarburton.github.io/Car.Check/report.html?d="
+           + encodeURIComponent(JSON.stringify(data));
+
+  document.getElementById("qrWrapper").style.display = "block";
+  document.getElementById("qrcode").innerHTML = "";
+
+  new QRCode(document.getElementById("qrcode"), {
+    text: qrURL, width:180, height:180, correctLevel:QRCode.CorrectLevel.M
+  });
+}
+
+function openFullscreenQR() {
+  const big = document.getElementById("qrBig");
+  big.innerHTML = "";
+  new QRCode(big, {
+    text: qrURL, width:320, height:320, correctLevel:QRCode.CorrectLevel.M
+  });
+  document.getElementById("qrFullscreen").style.display = "flex";
+  document.documentElement.requestFullscreen?.();
+  requestWakeLock();
+}
+
+function closeFullscreenQR() {
+  document.exitFullscreen?.();
+  document.getElementById("qrFullscreen").style.display = "none";
+  wakeLock?.release?.();
 }
 </script>
 
