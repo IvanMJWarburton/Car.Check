@@ -78,3 +78,25 @@ button {
   text-align: center;
   opacity: 0.7;
 }
+
+/* ---------- QR FULLSCREEN SUPPORT (SAFE ADDITION) ---------- */
+
+#qr-wrap {
+  text-align: center;
+}
+
+#qr canvas,
+#qr img {
+  max-width: 100%;
+  height: auto;
+}
+
+.qr-fullscreen {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
