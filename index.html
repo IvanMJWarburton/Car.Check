@@ -7,6 +7,31 @@
 
 <link rel="stylesheet" href="style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+/* QR area MUST be hidden until generated */
+#qrWrapper {
+  display: none;
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* TRUE fullscreen overlay */
+#qrFullscreen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: white;
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+#qrFullscreen small {
+  margin-top: 12px;
+  opacity: 0.7;
+}
+</style>
 </head>
 
 <body>
@@ -15,7 +40,7 @@
 <h2>Vehicle Visual Check</h2>
 
 <!-- Windscreen popup -->
-<div id="ws-popup" aria-hidden="true">
+<div id="ws-popup">
   <div class="ws-dialog" onclick="event.stopPropagation()">
     <p class="ws-title">Windscreen Damage</p>
 
@@ -78,11 +103,11 @@
 </div>
 
 <h3>Additional / Extra Lighting Observations</h3>
-<textarea id="lightNotes" rows="3"
-  placeholder="e.g. DRL strip partially out, light bar not working"></textarea>
+<textarea id="lightNotes" rows="3"></textarea>
 
 <button onclick="generate()">Generate QR Code</button>
 
+<!-- QR output -->
 <div id="qrWrapper">
   <div id="qrcode" onclick="openFullscreenQR()"></div>
   <small>Tap QR to enlarge for scanning</small>
@@ -92,6 +117,7 @@
 
 </div>
 
+<!-- FULLSCREEN QR -->
 <div id="qrFullscreen" onclick="closeFullscreenQR()">
   <div id="qrBig"></div>
   <small>Increase screen brightness for best scanning</small>
@@ -129,9 +155,7 @@ wsMap.addEventListener("pointerdown", e => {
   setTimeout(() => allowPopupClick = true, 120);
 });
 
-wsPopup.addEventListener("click", () => {
-  closePopup();
-});
+wsPopup.addEventListener("click", closePopup);
 
 function closePopup() {
   wsPopup.style.display = "none";
@@ -168,7 +192,7 @@ function renderWsMarker(m) {
   wsLayer.appendChild(el);
 }
 
-/* ---------------- QR generation ---------------- */
+/* ---------------- QR logic (RESTORED) ---------------- */
 
 async function requestWakeLock() {
   try { wakeLock = await navigator.wakeLock.request("screen"); } catch {}
@@ -183,12 +207,7 @@ function generate() {
     ws: wsMarks,
     wp: wipers.value,
     n: lightNotes.value,
-    t:{
-      df:+td_df.value||null,
-      dr:+td_dr.value||null,
-      pf:+td_pf.value||null,
-      pr:+td_pr.value||null
-    },
+    t:{df:+td_df.value||null,dr:+td_dr.value||null,pf:+td_pf.value||null,pr:+td_pr.value||null},
     l:{
       d:{fl:d_fl.value,rl:d_rl.value,br:d_br.value,if:d_if.value,ir:d_ir.value,is:d_is.value},
       p:{fl:p_fl.value,rl:p_rl.value,br:p_br.value,if:p_if.value,ir:p_ir.value,is:p_is.value}
@@ -196,10 +215,10 @@ function generate() {
   };
 
   qrURL = "https://ivanmjwarburton.github.io/Car.Check/report.html?d="
-           + encodeURIComponent(JSON.stringify(data));
+    + encodeURIComponent(JSON.stringify(data));
 
-  document.getElementById("qrWrapper").style.display = "block";
-  document.getElementById("qrcode").innerHTML = "";
+  qrWrapper.style.display = "block";
+  qrcode.innerHTML = "";
 
   new QRCode(qrcode, { text: qrURL, width:180, height:180 });
 }
