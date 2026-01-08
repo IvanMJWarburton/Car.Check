@@ -29,6 +29,19 @@
 <div class="container">
 
 <h2>Vehicle Visual Check</h2>
+  
+ <div id="ws-popup" style="
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.4); z-index:9998;
+  justify-content:center; align-items:center;
+">
+  <div style="background:#fff; padding:16px; border-radius:12px; text-align:center; min-width:220px;">
+    <p>Select type of damage</p>
+    <button onclick="selectWsType('chip')">Chip</button>
+    <button onclick="selectWsType('crack')">Crack</button>
+    <button onclick="selectWsType('cancel')">Cancel</button>
+  </div>
+ </div>
 
 <label>Registration
   <input id="reg" maxlength="8" style="text-transform:uppercase">
@@ -109,29 +122,43 @@ const wsMarks = [];
 const wsMap = document.getElementById("windscreen-map");
 const wsLayer = document.getElementById("ws-layer");
 
+let pendingClick = null;
+
 wsMap.addEventListener("pointerdown", e => {
   const rect = wsMap.getBoundingClientRect();
   const x = ((e.clientX - rect.left) / rect.width) * 100;
   const y = ((e.clientY - rect.top) / rect.height) * 100;
 
-  const type = confirm("OK = Chip\nCancel = Crack") ? "chip" : "crack";
+  // store pending click coordinates
+  pendingClick = {x, y};
+
+  // show popup
+  document.getElementById("ws-popup").style.display = "flex";
+});
+
+function selectWsType(type) {
+  document.getElementById("ws-popup").style.display = "none";
+  if (type === "cancel") return;
+  if (!pendingClick) return;
 
   const mark = {
-    x: Math.round(x),
-    y: Math.round(y),
+    x: Math.round(pendingClick.x),
+    y: Math.round(pendingClick.y),
     t: type
   };
 
   wsMarks.push(mark);
   renderWsMarker(mark);
-});
+
+  pendingClick = null;
+}
 
 function renderWsMarker(m) {
   const el = document.createElement("div");
   el.className = `ws-marker ws-${m.t}`;
   el.style.left = m.x + "%";
   el.style.top = m.y + "%";
-  wsLayer.appendChild(el);
+  wsLayer.appendCthathild(el);
 }
 
 async function requestWakeLock() {
@@ -144,7 +171,6 @@ function generate() {
   const data = {
     r: reg.value,
     m: mot.value,
-    w: windscreen.value,
     ws: wsMarks,
     wp: wipers.value,
     n: lightNotes.value,
