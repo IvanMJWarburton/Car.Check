@@ -14,16 +14,19 @@
 <h2>Vehicle Check</h2>
 
 <label>Registration</label>
-<input id="reg" maxlength="8" placeholder="AB12CDE" oninput="this.value=this.value.toUpperCase()">
+<input id="reg" maxlength="8" placeholder="AB12CDE"
+       oninput="this.value=this.value.toUpperCase()">
 
 <label>MOT Expiry Date</label>
 <input id="mot" type="date">
 
 <h3>Windscreen Damage Mapping</h3>
+
 <div id="windscreen-container">
-  <img id="windscreen-img" src="windscreen.jpeg" alt="Windscreen">
+  <img src="windscreen.jpg" alt="Windscreen">
   <div id="marker-layer"></div>
 </div>
+
 <p class="hint">Tap the windscreen to mark a chip or crack</p>
 
 <h3>Windscreen & Wipers</h3>
@@ -38,7 +41,7 @@
 </select>
 
 <h3>Tyre Tread Depth (mm)</h3>
-<div class="grid">
+<div class="grid-2">
   <input id="df" placeholder="Driver Front">
   <input id="dr" placeholder="Driver Rear">
   <input id="pf" placeholder="Passenger Front">
@@ -46,28 +49,28 @@
 </div>
 
 <h3>Lights</h3>
-<div class="grid">
-  <label>Driver Front</label><select id="d_fl"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Driver Rear</label><select id="d_rl"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Driver Brake</label><select id="d_br"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Driver Indicator Front</label><select id="d_if"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Driver Indicator Rear</label><select id="d_ir"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Driver Repeater</label><select id="d_is"><option value="W">Working</option><option value="F">Issue</option></select>
+<div class="stack">
+  <label>Driver Front Light</label><select id="d_fl"><option value="W">Working</option><option value="F">Issue</option></select>
+  <label>Driver Rear Light</label><select id="d_rl"><option value="W">Working</option><option value="F">Issue</option></select>
+  <label>Driver Brake Light</label><select id="d_br"><option value="W">Working</option><option value="F">Issue</option></select>
+  <label>Driver Indicator (Front)</label><select id="d_if"><option value="W">Working</option><option value="F">Issue</option></select>
+  <label>Driver Indicator (Rear)</label><select id="d_ir"><option value="W">Working</option><option value="F">Issue</option></select>
+  <label>Driver Side Repeater</label><select id="d_is"><option value="W">Working</option><option value="F">Issue</option></select>
 
-  <label>Passenger Front</label><select id="p_fl"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Passenger Rear</label><select id="p_rl"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Passenger Brake</label><select id="p_br"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Passenger Indicator Front</label><select id="p_if"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Passenger Indicator Rear</label><select id="p_ir"><option value="W">Working</option><option value="F">Issue</option></select>
-  <label>Passenger Repeater</label><select id="p_is"><option value="W">Working</option><option value="F">Issue</option></select>
+  <label>Passenger Front Light</label><select id="p_fl"><option value="W">Working</option><option value="F">Issue</option></select>
+  <label>Passenger Rear Light</label><select id="p_rl"><option value="W">Working</option><option value="F">Issue</option></select>
+  <label>Passenger Brake Light</label><select id="p_br"><option value="W">Working</option><option value="F">Issue</option></select>
+  <label>Passenger Indicator (Front)</label><select id="p_if"><option value="W">Working</option><option value="F">Issue</option></select>
+  <label>Passenger Indicator (Rear)</label><select id="p_ir"><option value="W">Working</option><option value="F">Issue</option></select>
+  <label>Passenger Side Repeater</label><select id="p_is"><option value="W">Working</option><option value="F">Issue</option></select>
 </div>
 
 <h3>Additional / Extra Lighting Observations</h3>
-<textarea id="notes"></textarea>
+<textarea id="notes" placeholder="Optional notes"></textarea>
 
 <button onclick="generate()">Generate QR</button>
 
-<div id="qr-wrap" style="display:none">
+<div id="qr-wrap" hidden>
   <div id="qr"></div>
 </div>
 
@@ -75,22 +78,24 @@
 
 <script>
 const wsMarks = [];
-const img = document.getElementById("windscreen-img");
-const layer = document.getElementById("marker-layer");
+const container = document.getElementById("windscreen-container");
+const markerLayer = document.getElementById("marker-layer");
 
-img.onclick = e => {
-  const r = img.getBoundingClientRect();
-  const x = ((e.clientX - r.left) / r.width) * 100;
-  const y = ((e.clientY - r.top) / r.height) * 100;
+container.addEventListener("pointerdown", e => {
+  const rect = container.getBoundingClientRect();
+  const x = ((e.clientX - rect.left) / rect.width) * 100;
+  const y = ((e.clientY - rect.top) / rect.height) * 100;
+
   const type = confirm("OK = Chip\nCancel = Crack") ? "chip" : "crack";
+
   wsMarks.push({ x: Math.round(x), y: Math.round(y), t: type });
 
   const m = document.createElement("div");
   m.className = `ws-marker ws-${type}`;
-  m.style.left = `${x}%`;
-  m.style.top = `${y}%`;
-  layer.appendChild(m);
-};
+  m.style.left = x + "%";
+  m.style.top = y + "%";
+  markerLayer.appendChild(m);
+});
 
 function generate() {
   const data = {
@@ -100,9 +105,7 @@ function generate() {
     ws: wsMarks,
     w: windscreen.value,
     wp: wipers.value,
-    t: {
-      df: df.value, dr: dr.value, pf: pf.value, pr: pr.value
-    },
+    t: { df: df.value, dr: dr.value, pf: pf.value, pr: pr.value },
     l: {
       d:{fl:d_fl.value,rl:d_rl.value,br:d_br.value,if:d_if.value,ir:d_ir.value,is:d_is.value},
       p:{fl:p_fl.value,rl:p_rl.value,br:p_br.value,if:p_if.value,ir:p_ir.value,is:p_is.value}
@@ -110,12 +113,10 @@ function generate() {
     n: notes.value
   };
 
-  const encoded = encodeURIComponent(JSON.stringify(data));
-  const url = `report.html?d=${encoded}`;
-
+  const url = "report.html?d=" + encodeURIComponent(JSON.stringify(data));
   qr.innerHTML = "";
-  new QRCode(qr, { text:url, width:200, height:200 });
-  document.getElementById("qr-wrap").style.display = "block";
+  new QRCode(qr, { text: url, width: 200, height: 200 });
+  document.getElementById("qr-wrap").hidden = false;
 }
 </script>
 
