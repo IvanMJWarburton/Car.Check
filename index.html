@@ -30,18 +30,23 @@
 
 <h2>Vehicle Visual Check</h2>
   
- <div id="ws-popup" style="
-  display:none; position:fixed; inset:0;
-  background:rgba(0,0,0,0.4); z-index:9998;
-  justify-content:center; align-items:center;
-">
-  <div style="background:#fff; padding:16px; border-radius:12px; text-align:center; min-width:220px;">
-    <p>Select type of damage</p>
-    <button onclick="selectWsType('chip')">Chip</button>
-    <button onclick="selectWsType('crack')">Crack</button>
-    <button onclick="selectWsType('cancel')">Cancel</button>
+ <div id="ws-popup" aria-hidden="true">
+  <div class="ws-dialog" onclick="event.stopPropagation()">
+    <p class="ws-title">Windscreen Damage</p>
+
+    <button class="ws-btn chip" onclick="selectWsType('chip')">
+      Mark Chip
+    </button>
+
+    <button class="ws-btn crack" onclick="selectWsType('crack')">
+      Mark Crack
+    </button>
+
+    <button class="ws-btn cancel" onclick="selectWsType('cancel')">
+      Cancel
+    </button>
   </div>
- </div>
+</div>
 
 <label>Registration
   <input id="reg" maxlength="8" style="text-transform:uppercase">
@@ -123,23 +128,40 @@ const wsMap = document.getElementById("windscreen-map");
 const wsLayer = document.getElementById("ws-layer");
 
 let pendingClick = null;
+let popupReady = false;
 
 wsMap.addEventListener("pointerdown", e => {
+  e.preventDefault();
+  e.stopPropagation();
+
   const rect = wsMap.getBoundingClientRect();
   const x = ((e.clientX - rect.left) / rect.width) * 100;
   const y = ((e.clientY - rect.top) / rect.height) * 100;
 
-  // store pending click coordinates
-  pendingClick = {x, y};
+  pendingClick = { x, y };
 
-  // show popup
-  document.getElementById("ws-popup").style.display = "flex";
+  popupReady = false;
+  const popup = document.getElementById("ws-popup");
+  popup.style.display = "flex";
+  popup.style.pointerEvents = "none";
+
+  // allow popup interaction NEXT frame only
+  requestAnimationFrame(() => {
+    popup.style.pointerEvents = "auto";
+    popupReady = true;
+  });
 });
 
 function selectWsType(type) {
-  document.getElementById("ws-popup").style.display = "none";
-  if (type === "cancel") return;
-  if (!pendingClick) return;
+  if (!popupReady) return;
+
+  const popup = document.getElementById("ws-popup");
+  popup.style.display = "none";
+
+  if (type === "cancel" || !pendingClick) {
+    pendingClick = null;
+    return;
+  }
 
   const mark = {
     x: Math.round(pendingClick.x),
@@ -149,7 +171,6 @@ function selectWsType(type) {
 
   wsMarks.push(mark);
   renderWsMarker(mark);
-
   pendingClick = null;
 }
 
