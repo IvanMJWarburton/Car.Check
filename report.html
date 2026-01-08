@@ -2,139 +2,87 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Vehicle Check Report</title>
+<title>Vehicle Report</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 <div class="container">
-
 <h2>Vehicle Check Report</h2>
-<div id="report"></div>
-
-<small>
-Visual check only. Not an MOT or safety guarantee.
-</small>
-
+<div id="out"></div>
 </div>
 
 <script>
-const raw = new URLSearchParams(location.search).get("d");
+const d = JSON.parse(decodeURIComponent(new URLSearchParams(location.search).get("d")));
 
-function badge(text, cls) {
-  return `<span class="${cls}">${text}</span>`;
+function daysLeft(date){
+  const diff = (new Date(date) - new Date()) / 86400000;
+  return Math.floor(diff);
 }
 
-function motStatus(dateStr) {
-  if (!dateStr) return { text:"Not recorded", cls:"warn", illegal:false };
+let issues = 0;
 
-  const today = new Date();
-  const mot = new Date(dateStr);
-  const days = Math.ceil((mot - today) / 86400000);
-
-  if (days < 0)
-    return { text:`Expired ${Math.abs(days)} days ago – Vehicle illegal`, cls:"bad", illegal:true };
-
-  if (days <= 30)
-    return { text:`Expires in ${days} days – Required soon`, cls:"warn", illegal:false };
-
-  return { text:`Expires in ${days} days – All good`, cls:"good", illegal:false };
+function tyre(v){
+  if(!v) return "Not checked";
+  if(v<1.6){ issues++; return `<span class="bad">${v}mm Illegal</span>`;}
+  if(v<3){ issues++; return `<span class="warn">${v}mm Low</span>`;}
+  return `<span class="good">${v}mm Good</span>`;
 }
 
-function tyre(mm) {
-  if (mm == null) return { text:"Not checked", cls:"warn", issue:false, illegal:false };
-  if (mm < 1.6) return { text:`${mm} mm – Illegal`, cls:"bad", issue:true, illegal:true };
-  if (mm < 3)   return { text:`${mm} mm – Low`, cls:"warn", issue:true, illegal:false };
-  return { text:`${mm} mm – Good`, cls:"good", issue:false, illegal:false };
+function badge(v){
+  if(v==="F"){ issues++; return `<span class="warn">Issue</span>`;}
+  return `<span class="good">OK</span>`;
 }
 
-if (!raw) {
-  document.getElementById("report").innerHTML = "<p>No report data.</p>";
-} else {
-  const d = JSON.parse(decodeURIComponent(raw));
-  let issues = 0;
-  let illegal = false;
+let html = `
+<p><strong>Registration:</strong> ${d.r}</p>
+<p><strong>Check Date:</strong> ${new Date(d.d).toLocaleString()}</p>
+<p><strong>MOT:</strong> ${d.m} (${daysLeft(d.m)} days)</p>
 
-  const mot = motStatus(d.m);
-  if (mot.illegal) illegal = true;
+<h3>Overall Status</h3>
+<p class="${issues? 'warn':'good'}">${issues} issue(s) observed</p>
 
-  const checkTime = new Date().toLocaleString();
+<h3>Windscreen Damage</h3>
+<div id="windscreen-report">
+<img src="windscreen.jpg">
+<div id="ws-layer"></div>
+</div>
 
-  if (d.w === "I") issues++;
-  if (d.wp === "I") issues++;
+<h3>Tyres</h3>
+<ul>
+<li>Driver Front: ${tyre(d.t.df)}</li>
+<li>Driver Rear: ${tyre(d.t.dr)}</li>
+<li>Passenger Front: ${tyre(d.t.pf)}</li>
+<li>Passenger Rear: ${tyre(d.t.pr)}</li>
+</ul>
 
-  const tyres = {
-    df: tyre(d.t.df),
-    dr: tyre(d.t.dr),
-    pf: tyre(d.t.pf),
-    pr: tyre(d.t.pr)
-  };
+<h3>Lights</h3>
+<ul>
+<li>Driver Front: ${badge(d.l.d.fl)}</li>
+<li>Driver Rear: ${badge(d.l.d.rl)}</li>
+<li>Driver Brake: ${badge(d.l.d.br)}</li>
+<li>Passenger Front: ${badge(d.l.p.fl)}</li>
+<li>Passenger Rear: ${badge(d.l.p.rl)}</li>
+<li>Passenger Brake: ${badge(d.l.p.br)}</li>
+</ul>
 
-  Object.values(tyres).forEach(t => {
-    if (t.issue) issues++;
-    if (t.illegal) illegal = true;
-  });
+<h3>Notes</h3>
+<p>${d.n||"None"}</p>
 
-  function light(v) {
-    if (v === "I") { issues++; return badge("Issue observed", "warn"); }
-    return badge("No issues found", "good");
-  }
+<small>Visual check only – not an MOT or safety guarantee.</small>
+`;
 
-  let overall;
-  if (illegal) overall = badge("Vehicle illegal", "bad");
-  else if (issues > 0) overall = badge(`Issues require attention (${issues})`, "warn");
-  else overall = badge("All good", "good");
+out.innerHTML = html;
 
-  document.getElementById("report").innerHTML = `
-    <p><strong>Date & Time of Check:</strong> ${checkTime}</p>
-
-    <h3>Overall Vehicle Status</h3>
-    <p>${overall}</p>
-
-    <h3>Vehicle Details</h3>
-    <p><strong>Registration:</strong> ${d.r}</p>
-    <p><strong>MOT:</strong> ${badge(mot.text, mot.cls)}</p>
-
-    <h3>Windscreen & Wipers</h3>
-    <p>Windscreen: ${d.w==="W"?badge("No issues found","good"):badge("Chip / crack observed","warn")}</p>
-    <p>Wipers: ${d.wp==="W"?badge("No issues found","good"):badge("Worn / damaged","warn")}</p>
-
-    <h3>Tyres</h3>
-    <ul>
-      <li>Driver Front: ${badge(tyres.df.text, tyres.df.cls)}</li>
-      <li>Driver Rear: ${badge(tyres.dr.text, tyres.dr.cls)}</li>
-      <li>Passenger Front: ${badge(tyres.pf.text, tyres.pf.cls)}</li>
-      <li>Passenger Rear: ${badge(tyres.pr.text, tyres.pr.cls)}</li>
-    </ul>
-
-    <h3>Lights – Driver Side</h3>
-    <ul>
-      <li>Front Light: ${light(d.l.d.fl)}</li>
-      <li>Rear Light: ${light(d.l.d.rl)}</li>
-      <li>Brake Light: ${light(d.l.d.br)}</li>
-      <li>Front Indicator: ${light(d.l.d.if)}</li>
-      <li>Rear Indicator: ${light(d.l.d.ir)}</li>
-      <li>Side Repeater: ${light(d.l.d.is)}</li>
-    </ul>
-
-    <h3>Lights – Passenger Side</h3>
-    <ul>
-      <li>Front Light: ${light(d.l.p.fl)}</li>
-      <li>Rear Light: ${light(d.l.p.rl)}</li>
-      <li>Brake Light: ${light(d.l.p.br)}</li>
-      <li>Front Indicator: ${light(d.l.p.if)}</li>
-      <li>Rear Indicator: ${light(d.l.p.ir)}</li>
-      <li>Side Repeater: ${light(d.l.p.is)}</li>
-    </ul>
-
-    ${d.n && d.n.trim() ? `
-      <h3>Additional / Extra Lighting Observations</h3>
-      <p>${d.n}</p>
-    ` : ""}
-  `;
-}
+const layer = document.getElementById("ws-layer");
+(d.ws||[]).forEach(m=>{
+  const el=document.createElement("div");
+  el.className=`ws-marker ws-${m.t}`;
+  el.style.left=m.x+"%";
+  el.style.top=m.y+"%";
+  layer.appendChild(el);
+});
 </script>
-
 </body>
 </html>
