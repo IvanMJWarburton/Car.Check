@@ -23,7 +23,7 @@ Visual check only. Not an MOT or safety guarantee.
 const raw = new URLSearchParams(location.search).get("d");
 
 function badge(text, cls) {
-  return `<span class="badge ${cls}">${text}</span>`;
+  return `<span class="${cls}">${text}</span>`;
 }
 
 function motStatus(dateStr) {
@@ -53,18 +53,16 @@ if (!raw) {
   document.getElementById("report").innerHTML = "<p>No report data.</p>";
 } else {
   const d = JSON.parse(decodeURIComponent(raw));
-
   let issues = 0;
   let illegal = false;
 
   const mot = motStatus(d.m);
   if (mot.illegal) illegal = true;
 
-  const checkTime = d.ts
-    ? new Date(d.ts).toLocaleString()
-    : "Not recorded";
+  // Use timestamp from main form
+  const checkTime = d.ts ? new Date(d.ts).toLocaleString() : "Not recorded";
 
-  if (d.ws && d.ws.length) issues++;
+  if (d.ws?.length) issues += d.ws.length;
   if (d.wp === "I") issues++;
 
   const tyres = {
@@ -80,10 +78,7 @@ if (!raw) {
   });
 
   function light(v) {
-    if (v === "I") {
-      issues++;
-      return badge("Issue observed", "warn");
-    }
+    if (v === "I") { issues++; return badge("Issue observed", "warn"); }
     return badge("No issues found", "good");
   }
 
@@ -103,26 +98,10 @@ if (!raw) {
     <p><strong>MOT:</strong> ${badge(mot.text, mot.cls)}</p>
 
     <h3>Windscreen & Wipers</h3>
-    <p>Windscreen: ${
-      d.ws && d.ws.length
-        ? badge("Chip / crack observed", "warn")
-        : badge("No issues found", "good")
-    }</p>
-    <p>Wipers: ${
-      d.wp === "W"
-        ? badge("No issues found", "good")
-        : badge("Worn / damaged", "warn")
-    }</p>
-
-    ${
-      d.ws && d.ws.length ? `
-      <h3>Windscreen Damage Map</h3>
-      <div id="windscreen-map">
-        <img src="windscreen.jpg" alt="Windscreen">
-        <div id="ws-layer"></div>
-      </div>
-      ` : ""
-    }
+    <p>Windscreen: ${d.ws?.length
+      ? badge("Chip / crack observed", "warn")
+      : badge("No issues found","good")}</p>
+    <p>Wipers: ${d.wp==="W"?badge("No issues found","good"):badge("Worn / damaged","warn")}</p>
 
     <h3>Tyres</h3>
     <ul>
@@ -152,25 +131,18 @@ if (!raw) {
       <li>Side Repeater: ${light(d.l.p.is)}</li>
     </ul>
 
-    ${
-      d.n && d.n.trim() ? `
+    ${d.n && d.n.trim() ? `
       <h3>Additional / Extra Lighting Observations</h3>
       <p>${d.n}</p>
-      ` : ""
-    }
-  `;
+    ` : ""}
 
-  // Render windscreen markers
-  if (d.ws && d.ws.length) {
-    const layer = document.getElementById("ws-layer");
-    d.ws.forEach(m => {
-      const el = document.createElement("div");
-      el.className = `ws-marker ws-${m.t}`;
-      el.style.left = m.x + "%";
-      el.style.top = m.y + "%";
-      layer.appendChild(el);
-    });
-  }
+    ${d.ws?.length ? `
+      <h3>Windscreen Damage Marks</h3>
+      <ul>
+        ${d.ws.map(m => `<li>${m.t.charAt(0).toUpperCase()+m.t.slice(1)} at (${m.x}%, ${m.y}%)</li>`).join("")}
+      </ul>
+    ` : ""}
+  `;
 }
 </script>
 
