@@ -117,3 +117,43 @@ small {
 
 .ws-chip { background: #facc15; }   /* yellow */
 .ws-crack { background: #dc2626; }  /* red */
+
+
+#ws-popup {
+  position: fixed;
+  inset: 0;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(3px);
+  z-index: 9998;
+}
+
+.ws-dialog {
+  background: #fff;
+  padding: 18px;
+  border-radius: 14px;
+  width: 90%;
+  max-width: 280px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+.ws-title {
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.ws-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: none;
+}
+
+.ws-btn.chip   { background:#facc15; color:#000; }
+.ws-btn.crack  { background:#dc2626; color:#fff; }
+.ws-btn.cancel { background:#e5e7eb; color:#000; }
