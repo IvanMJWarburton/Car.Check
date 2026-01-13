@@ -1,72 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Vehicle Check Report</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 <div class="container">
-
-<h2>Vehicle Check Report</h2>
-<div id="report"></div>
-
-<small>
-Visual check only. Not an MOT or safety guarantee.
-</small>
-
+  <h2>Vehicle Check Report</h2>
+  <div id="report"></div>
+  <small>Visual check only. Not an MOT or safety guarantee.</small>
 </div>
 
 <script>
-const raw = new URLSearchParams(location.search).get("d");
+const raw = new URLSearchParams(location.search).get('d');
 
-function badge(text, cls) {
+function badge(text, cls){
   return `<span class="badge ${cls}">${text}</span>`;
 }
 
-function motStatus(dateStr) {
-  if (!dateStr) return { text:"Not recorded", cls:"warn", illegal:false };
-
+function motStatus(dateStr){
+  if (!dateStr) return { text: 'Not recorded', cls: 'warn', illegal: false };
   const today = new Date();
   const mot = new Date(dateStr);
   const days = Math.ceil((mot - today) / 86400000);
-
-  if (days < 0)
-    return { text:`Expired ${Math.abs(days)} days ago`, cls:"bad", illegal:true };
-
-  if (days <= 30)
-    return { text:`Expires in ${days} days`, cls:"warn", illegal:false };
-
-  return { text:`Expires in ${days} days`, cls:"good", illegal:false };
+  if (days < 0) return { text: `Expired ${Math.abs(days)} days ago`, cls: 'bad', illegal: true };
+  if (days <= 30) return { text: `Expires in ${days} days`, cls: 'warn', illegal: false };
+  return { text: `Expires in ${days} days`, cls: 'good', illegal: false };
 }
 
-function tyreReport(mm) {
-  if (mm == null) return { text:"Not checked", cls:"warn", issue:false, illegal:false };
-  if (mm < 1.6) return { text:`${mm} mm – Illegal`, cls:"bad", issue:true, illegal:true };
-  if (mm < 3)   return { text:`${mm} mm – Low`, cls:"warn", issue:true, illegal:false };
-  return { text:`${mm} mm – Good`, cls:"good", issue:false, illegal:false };
+function tyreReport(mm){
+  if (mm == null) return { text: 'Not checked', cls: 'warn', issue: false, illegal: false };
+  if (mm < 1.6) return { text: `${mm} mm – Illegal`, cls: 'bad', issue: true, illegal: true };
+  if (mm < 3) return { text: `${mm} mm – Low`, cls: 'warn', issue: true, illegal: false };
+  return { text: `${mm} mm – Good`, cls: 'good', issue: false, illegal: false };
 }
 
 if (!raw) {
-  document.getElementById("report").innerHTML = "<p>No report data.</p>";
+  document.getElementById('report').innerHTML = '<p>No report data.</p>';
 } else {
   const d = JSON.parse(decodeURIComponent(raw));
+  const checkTime = d.ts ? new Date(d.ts).toLocaleString() : 'Not recorded';
+
   let issues = 0;
   let illegal = false;
-
-  // Timestamp from QR data
-  const checkTime = d.ts ? new Date(d.ts).toLocaleString() : "Not recorded";
 
   const mot = motStatus(d.m);
   if (mot.illegal) illegal = true;
 
-  // Windscreen advisory count
-  if (d.ws && d.ws.length) issues++;
-
-  // Wipers
-  if (d.wp === "I") issues++;
+  if (d.wp === 'I') issues++;
+  if (d.ws && d.ws.length) issues += d.ws.length;
 
   const tyres = {
     df: tyreReport(d.t.df),
@@ -75,52 +59,31 @@ if (!raw) {
     pr: tyreReport(d.t.pr)
   };
 
-  Object.values(tyres).forEach(t => {
-    if (t.issue) issues++;
-    if (t.illegal) illegal = true;
-  });
+  Object.values(tyres).forEach(t => { if (t.issue) issues++; if (t.illegal) illegal = true; });
 
-  function light(v) {
-    if (v === "I") { issues++; return badge("Issue observed", "warn"); }
-    return badge("No issues found", "good");
-  }
+  function light(v){ if (v === 'I') { issues++; return badge('Issue observed','warn'); } return badge('No issues found','good'); }
 
-  let overall;
-  if (illegal) overall = badge("Vehicle illegal", "bad");
-  else if (issues > 0) overall = badge(`Issues require attention (${issues})`, "warn");
-  else overall = badge("All good", "good");
+  let overall = illegal ? badge('Vehicle illegal','bad') : (issues ? badge(`Issues require attention (${issues})`,'warn') : badge('All good','good'));
 
-  document.getElementById("report").innerHTML = `
+  // Build report HTML
+  document.getElementById('report').innerHTML = `
     <p><strong>Date & Time of Check:</strong> ${checkTime}</p>
-
     <h3>Overall Vehicle Status</h3>
     <p>${overall}</p>
 
     <h3>Vehicle Details</h3>
-    <p><strong>Registration:</strong> ${d.r}</p>
+    <p><strong>Registration:</strong> ${d.r || 'Not recorded'}</p>
     <p><strong>MOT:</strong> ${badge(mot.text, mot.cls)}</p>
 
     <h3>Windscreen & Wipers</h3>
-    <p>Windscreen: ${
-      d.ws && d.ws.length
-        ? badge("Chip / crack observed","warn")
-        : badge("No issues found","good")
-    }</p>
-    <p>Wipers: ${
-      d.wp==="W"
-        ? badge("No issues found","good")
-        : badge("Worn / damaged","warn")
-    }</p>
+    <p>Windscreen: ${d.ws && d.ws.length ? badge('Damage recorded','warn') : badge('No issues found','good')}</p>
+    <p>Wipers: ${d.wp === 'W' ? badge('No issues found','good') : badge('Worn / damaged','warn')}</p>
 
-    ${
-      (d.ws && d.ws.length) ? `
-      <h3>Windscreen Damage Map</h3>
-      <div id="windscreen-map">
-        <img src="windscreen.jpg" alt="Windscreen">
-        <div id="ws-layer"></div>
-      </div>
-      ` : ""
-    }
+    <h3>Windscreen Image</h3>
+    <div id="windscreen-map">
+      <img src="windscreen.jpg" alt="Windscreen">
+      <div id="ws-layer"></div>
+    </div>
 
     <h3>Tyres</h3>
     <ul>
@@ -150,25 +113,21 @@ if (!raw) {
       <li>Side Repeater: ${light(d.l.p.is)}</li>
     </ul>
 
-    ${d.n && d.n.trim() ? `
-      <h3>Additional / Extra Lighting Observations</h3>
-      <p>${d.n}</p>
-    ` : ""}
+    ${d.n ? `<h3>Additional Notes</h3><p>${d.n}</p>` : ''}
   `;
 
-  // Render windscreen markers on top of image if any
+  // Render markers if present
   if (d.ws && d.ws.length) {
-    const layer = document.getElementById("ws-layer");
+    const layer = document.getElementById('ws-layer');
     d.ws.forEach(m => {
-      const dot = document.createElement("div");
-      dot.className = `ws-marker ws-${m.t}`;
-      dot.style.left = m.x + "%";
-      dot.style.top = m.y + "%";
-      layer.appendChild(dot);
+      const el = document.createElement('div');
+      el.className = `ws-marker ws-${m.t}`;
+      el.style.left = m.x + '%';
+      el.style.top = m.y + '%';
+      layer.appendChild(el);
     });
   }
 }
 </script>
-
 </body>
 </html>
