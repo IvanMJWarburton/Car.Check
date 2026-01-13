@@ -23,7 +23,7 @@ Visual check only. Not an MOT or safety guarantee.
 const raw = new URLSearchParams(location.search).get("d");
 
 function badge(text, cls) {
-  return `<span class="${cls}">${text}</span>`;
+  return `<span class="badge ${cls}">${text}</span>`;
 }
 
 function motStatus(dateStr) {
@@ -34,15 +34,15 @@ function motStatus(dateStr) {
   const days = Math.ceil((mot - today) / 86400000);
 
   if (days < 0)
-    return { text:`Expired ${Math.abs(days)} days ago – Vehicle illegal`, cls:"bad", illegal:true };
+    return { text:`Expired ${Math.abs(days)} days ago`, cls:"bad", illegal:true };
 
   if (days <= 30)
-    return { text:`Expires in ${days} days – Required soon`, cls:"warn", illegal:false };
+    return { text:`Expires in ${days} days`, cls:"warn", illegal:false };
 
-  return { text:`Expires in ${days} days – All good`, cls:"good", illegal:false };
+  return { text:`Expires in ${days} days`, cls:"good", illegal:false };
 }
 
-function tyre(mm) {
+function tyreReport(mm) {
   if (mm == null) return { text:"Not checked", cls:"warn", issue:false, illegal:false };
   if (mm < 1.6) return { text:`${mm} mm – Illegal`, cls:"bad", issue:true, illegal:true };
   if (mm < 3)   return { text:`${mm} mm – Low`, cls:"warn", issue:true, illegal:false };
@@ -56,20 +56,23 @@ if (!raw) {
   let issues = 0;
   let illegal = false;
 
+  // Timestamp from QR data
+  const checkTime = d.ts ? new Date(d.ts).toLocaleString() : "Not recorded";
+
   const mot = motStatus(d.m);
   if (mot.illegal) illegal = true;
 
-  // Use timestamp from main form
-  const checkTime = d.ts ? new Date(d.ts).toLocaleString() : "Not recorded";
+  // Windscreen advisory count
+  if (d.ws && d.ws.length) issues++;
 
-  if (d.ws?.length) issues += d.ws.length;
+  // Wipers
   if (d.wp === "I") issues++;
 
   const tyres = {
-    df: tyre(d.t.df),
-    dr: tyre(d.t.dr),
-    pf: tyre(d.t.pf),
-    pr: tyre(d.t.pr)
+    df: tyreReport(d.t.df),
+    dr: tyreReport(d.t.dr),
+    pf: tyreReport(d.t.pf),
+    pr: tyreReport(d.t.pr)
   };
 
   Object.values(tyres).forEach(t => {
@@ -98,10 +101,26 @@ if (!raw) {
     <p><strong>MOT:</strong> ${badge(mot.text, mot.cls)}</p>
 
     <h3>Windscreen & Wipers</h3>
-    <p>Windscreen: ${d.ws?.length
-      ? badge("Chip / crack observed", "warn")
-      : badge("No issues found","good")}</p>
-    <p>Wipers: ${d.wp==="W"?badge("No issues found","good"):badge("Worn / damaged","warn")}</p>
+    <p>Windscreen: ${
+      d.ws && d.ws.length
+        ? badge("Chip / crack observed","warn")
+        : badge("No issues found","good")
+    }</p>
+    <p>Wipers: ${
+      d.wp==="W"
+        ? badge("No issues found","good")
+        : badge("Worn / damaged","warn")
+    }</p>
+
+    ${
+      (d.ws && d.ws.length) ? `
+      <h3>Windscreen Damage Map</h3>
+      <div id="windscreen-map">
+        <img src="windscreen.jpg" alt="Windscreen">
+        <div id="ws-layer"></div>
+      </div>
+      ` : ""
+    }
 
     <h3>Tyres</h3>
     <ul>
@@ -135,14 +154,19 @@ if (!raw) {
       <h3>Additional / Extra Lighting Observations</h3>
       <p>${d.n}</p>
     ` : ""}
-
-    ${d.ws?.length ? `
-      <h3>Windscreen Damage Marks</h3>
-      <ul>
-        ${d.ws.map(m => `<li>${m.t.charAt(0).toUpperCase()+m.t.slice(1)} at (${m.x}%, ${m.y}%)</li>`).join("")}
-      </ul>
-    ` : ""}
   `;
+
+  // Render windscreen markers on top of image if any
+  if (d.ws && d.ws.length) {
+    const layer = document.getElementById("ws-layer");
+    d.ws.forEach(m => {
+      const dot = document.createElement("div");
+      dot.className = `ws-marker ws-${m.t}`;
+      dot.style.left = m.x + "%";
+      dot.style.top = m.y + "%";
+      layer.appendChild(dot);
+    });
+  }
 }
 </script>
 
