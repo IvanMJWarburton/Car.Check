@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="light">
-  <title>Vehicle Check</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vehicle Check</title>
 
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 
 <body>
@@ -24,7 +23,7 @@
 
     <label>
       MOT Expiry Date
-      <input type="date" id="motDate" required>
+      <input type="date" id="mot" required>
     </label>
 
     <div class="section side">
@@ -44,20 +43,23 @@
     </div>
 
     <div class="section side">
-      <h3>Windscreen Damage</h3>
+      <h3>Additional Details</h3>
+      <textarea id="notes" rows="3" placeholder="Enter extra notes here..."></textarea>
+    </div>
 
+    <div class="section side">
+      <h3>Windscreen Damage</h3>
       <div id="windscreen-map">
-        <img src="windscreen.jpeg" alt="Windscreen">
+        <img src="windscreen.jpeg" alt="Windscreen" id="ws-image">
         <div id="ws-layer"></div>
       </div>
-
       <small>Tap on the windscreen to add a chip or crack</small>
     </div>
 
     <button type="submit">Generate QR Code</button>
   </form>
 
-  <div id="qrcode"></div>
+  <div id="qrcode" style="margin-top:20px;"></div>
 
 </div>
 
