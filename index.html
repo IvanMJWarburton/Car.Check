@@ -1,110 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
 <title>Vehicle Visual Check</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <link rel="stylesheet" href="style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
 </head>
+
 <body>
 <div class="container">
 
-  <h2>Vehicle Visual Check</h2>
+<h2>Vehicle Visual Check</h2>
 
-  <!-- Windscreen popup (modal) -->
-  <div id="ws-popup" aria-hidden="true">
-    <div class="ws-dialog" onclick="event.stopPropagation()">
-      <p class="ws-title">Windscreen Damage</p>
-      <button class="ws-btn chip" onclick="selectWsType('chip')">Mark Chip</button>
-      <button class="ws-btn crack" onclick="selectWsType('crack')">Mark Crack</button>
-      <button class="ws-btn cancel" onclick="selectWsType('cancel')">Cancel</button>
-    </div>
+<!-- Windscreen popup -->
+<div id="ws-popup">
+  <div class="ws-dialog" onclick="event.stopPropagation()">
+    <p class="ws-title">Windscreen Damage</p>
+
+    <button class="ws-btn chip" onclick="selectWsType('chip')">Mark Chip</button>
+    <button class="ws-btn crack" onclick="selectWsType('crack')">Mark Crack</button>
+    <button class="ws-btn cancel" onclick="selectWsType('cancel')">Cancel</button>
   </div>
-
-  <label>Registration
-    <input id="reg" maxlength="8" style="text-transform:uppercase">
-  </label>
-
-  <label>MOT Expiry Date
-    <input id="mot" type="date">
-  </label>
-
-  <h3>Windscreen Damage Map</h3>
-  <div id="windscreen-map">
-    <img id="windscreen-img" src="windscreen.jpg" alt="Windscreen">
-    <div id="ws-layer"></div>
-  </div>
-  <small>Tap the windscreen to mark a chip or crack</small>
-
-  <label>Wipers
-    <select id="wipers">
-      <option value="W">Working</option>
-      <option value="I">Worn / damaged</option>
-    </select>
-  </label>
-
-  <h3>Tyre Tread Depth (mm)</h3>
-  <div class="grid">
-    <label>Driver Front <input id="td_df" type="number" step="0.1"></label>
-    <label>Driver Rear <input id="td_dr" type="number" step="0.1"></label>
-    <label>Passenger Front <input id="td_pf" type="number" step="0.1"></label>
-    <label>Passenger Rear <input id="td_pr" type="number" step="0.1"></label>
-  </div>
-
-  <h3>Lights – Driver Side</h3>
-  <div class="grid">
-    <label>Front <select id="d_fl"><option value="W">Working</option><option value="I">Issue</option></select></label>
-    <label>Rear <select id="d_rl"><option value="W">Working</option><option value="I">Issue</option></select></label>
-    <label>Brake <select id="d_br"><option value="W">Working</option><option value="I">Issue</option></select></label>
-    <label>Indicator Front <select id="d_if"><option value="W">Working</option><option value="I">Issue</option></select></label>
-    <label>Indicator Rear <select id="d_ir"><option value="W">Working</option><option value="I">Issue</option></select></label>
-    <label>Side Repeater <select id="d_is"><option value="W">Working</option><option value="I">Issue</option></select></label>
-  </div>
-
-  <h3>Lights – Passenger Side</h3>
-  <div class="grid">
-    <label>Front <select id="p_fl"><option value="W">Working</option><option value="I">Issue</option></select></label>
-    <label>Rear <select id="p_rl"><option value="W">Working</option><option value="I">Issue</option></select></label>
-    <label>Brake <select id="p_br"><option value="W">Working</option><option value="I">Issue</option></select></label>
-    <label>Indicator Front <select id="p_if"><option value="W">Working</option><option value="I">Issue</option></select></label>
-    <label>Indicator Rear <select id="p_ir"><option value="W">Working</option><option value="I">Issue</option></select></label>
-    <label>Side Repeater <select id="p_is"><option value="W">Working</option><option value="I">Issue</option></select></label>
-  </div>
-
-  <h3>Additional / Extra Lighting Observations</h3>
-  <textarea id="lightNotes" rows="3" placeholder="e.g. DRL strip partially out, light bar not working"></textarea>
-
-  <button onclick="generate()">Generate QR Code</button>
-
-  <div id="qrWrapper">
-    <div id="qrcode" onclick="openFullscreenQR()"></div>
-    <small>Tap QR to enlarge for scanning</small>
-  </div>
-
-  <small>Visual check only. Not an MOT or safety guarantee.</small>
 </div>
 
-<!-- Fullscreen QR overlay -->
+<label>Registration
+  <input id="reg" maxlength="8" style="text-transform:uppercase">
+</label>
+
+<label>MOT Expiry Date
+  <input type="date" id="mot">
+</label>
+
+<h3>Windscreen Damage Map</h3>
+
+<div id="windscreen-map">
+  <img src="windscreen.jpg" alt="Windscreen">
+  <div id="ws-layer"></div>
+</div>
+
+<small>Tap the windscreen to mark a chip or crack</small>
+
+<label>Wipers
+  <select id="wipers">
+    <option value="W">Working</option>
+    <option value="I">Worn / damaged</option>
+  </select>
+</label>
+
+<h3>Tyre Tread Depth (mm)</h3>
+<div class="grid">
+  <label>Driver Front <input type="number" step="0.1" id="td_df"></label>
+  <label>Driver Rear <input type="number" step="0.1" id="td_dr"></label>
+  <label>Passenger Front <input type="number" step="0.1" id="td_pf"></label>
+  <label>Passenger Rear <input type="number" step="0.1" id="td_pr"></label>
+</div>
+
+<h3>Lights – Driver Side</h3>
+<div class="grid">
+  <label>Front <select id="d_fl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Rear <select id="d_rl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Brake <select id="d_br"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Indicator Front <select id="d_if"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Indicator Rear <select id="d_ir"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Side Repeater <select id="d_is"><option value="W">Working</option><option value="I">Issue</option></select></label>
+</div>
+
+<h3>Lights – Passenger Side</h3>
+<div class="grid">
+  <label>Front <select id="p_fl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Rear <select id="p_rl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Brake <select id="p_br"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Indicator Front <select id="p_if"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Indicator Rear <select id="p_ir"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  <label>Side Repeater <select id="p_is"><option value="W">Working</option><option value="I">Issue</option></select></label>
+</div>
+
+<h3>Additional / Extra Lighting Observations</h3>
+<textarea id="lightNotes" rows="3"></textarea>
+
+<button onclick="generate()">Generate QR Code</button>
+
+<!-- QR output -->
+<div id="qrWrapper">
+  <div id="qrcode" onclick="openFullscreenQR()"></div>
+  <small>Tap QR to enlarge for scanning</small>
+</div>
+
+<small>Visual check only. Not an MOT or safety guarantee.</small>
+
+</div>
+
+<!-- FULLSCREEN QR -->
 <div id="qrFullscreen" onclick="closeFullscreenQR()">
   <div id="qrBig"></div>
   <small>Increase screen brightness for best scanning</small>
 </div>
 
 <script>
-/* --------- DOM refs --------- */
-const wsMap = document.getElementById('windscreen-map');
-const wsLayer = document.getElementById('ws-layer');
-const wsPopup = document.getElementById('ws-popup');
+let qrURL = "";
+let wakeLock = null;
 
-/* --------- windscreen marking state --------- */
+/* ---------------- Windscreen mapping ---------------- */
+
 const wsMarks = [];
+const wsMap = document.getElementById("windscreen-map");
+const wsLayer = document.getElementById("ws-layer");
+const wsPopup = document.getElementById("ws-popup");
+
 let pendingClick = null;
 let popupOpen = false;
 let allowPopupClick = false;
 
-/* Pointer handler: set pending coordinates, open modal (no immediate click) */
-wsMap.addEventListener('pointerdown', e => {
+wsMap.addEventListener("pointerdown", e => {
   if (popupOpen) return;
 
   const rect = wsMap.getBoundingClientRect();
@@ -115,112 +125,101 @@ wsMap.addEventListener('pointerdown', e => {
 
   popupOpen = true;
   allowPopupClick = false;
-  wsPopup.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
+  wsPopup.style.display = "flex";
+  document.body.style.overflow = "hidden";
 
-  // prevent the popup registering the initial tap
-  setTimeout(() => { allowPopupClick = true; }, 120);
+  setTimeout(() => allowPopupClick = true, 120);
 });
 
-/* click on backdrop closes */
-wsPopup.addEventListener('click', () => {
-  if (!allowPopupClick) return;
-  closePopup();
-});
+wsPopup.addEventListener("click", closePopup);
 
-function closePopup(){
-  wsPopup.style.display = 'none';
+function closePopup() {
+  wsPopup.style.display = "none";
   popupOpen = false;
   allowPopupClick = false;
   pendingClick = null;
-  document.body.style.overflow = '';
+  document.body.style.overflow = "";
 }
 
-/* Called by modal buttons */
-function selectWsType(type){
+function selectWsType(type) {
   if (!allowPopupClick) return;
-  if (type === 'cancel'){ closePopup(); return; }
 
-  const mark = { x: Math.round(pendingClick.x), y: Math.round(pendingClick.y), t: type };
+  if (type === "cancel") {
+    closePopup();
+    return;
+  }
+
+  const mark = {
+    x: Math.round(pendingClick.x),
+    y: Math.round(pendingClick.y),
+    t: type
+  };
+
   wsMarks.push(mark);
   renderWsMarker(mark);
   closePopup();
 }
 
-/* Render a marker dot on the input page */
-function renderWsMarker(m){
-  const el = document.createElement('div');
+function renderWsMarker(m) {
+  const el = document.createElement("div");
   el.className = `ws-marker ws-${m.t}`;
-  el.style.left = m.x + '%';
-  el.style.top = m.y + '%';
+  el.style.left = m.x + "%";
+  el.style.top = m.y + "%";
   wsLayer.appendChild(el);
 }
 
-/* --------- QR generation --------- */
-let qrURL = '';
-let wakeLock = null;
+/* ---------------- QR logic (RESTORED) ---------------- */
 
-async function requestWakeLock(){
-  try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
+async function requestWakeLock() {
+  try { wakeLock = await navigator.wakeLock.request("screen"); } catch {}
 }
 
-function generate(){
-  // include timestamp of inspection moment
-  const payload = {
-    ts: new Date().toISOString(),
-    r: document.getElementById('reg').value.toUpperCase(),
-    m: document.getElementById('mot').value,
+function generate() {
+  reg.value = reg.value.toUpperCase();
+
+  const data = {
+    ts: new Date().toISOString(),   // <<< add this timestamp here
+    r: reg.value,
+    m: mot.value,
     ws: wsMarks,
-    wp: document.getElementById('wipers').value,
-    n: document.getElementById('lightNotes').value,
+    wp: wipers.value,
+    n: lightNotes.value,
     t: {
-      df: +document.getElementById('td_df').value || null,
-      dr: +document.getElementById('td_dr').value || null,
-      pf: +document.getElementById('td_pf').value || null,
-      pr: +document.getElementById('td_pr').value || null
+      df: +td_df.value||null,
+      dr: +td_dr.value||null,
+      pf: +td_pf.value||null,
+      pr: +td_pr.value||null
     },
     l: {
-      d: {
-        fl: document.getElementById('d_fl').value,
-        rl: document.getElementById('d_rl').value,
-        br: document.getElementById('d_br').value,
-        if: document.getElementById('d_if').value,
-        ir: document.getElementById('d_ir').value,
-        is: document.getElementById('d_is').value
-      },
-      p: {
-        fl: document.getElementById('p_fl').value,
-        rl: document.getElementById('p_rl').value,
-        br: document.getElementById('p_br').value,
-        if: document.getElementById('p_if').value,
-        ir: document.getElementById('p_ir').value,
-        is: document.getElementById('p_is').value
-      }
+      d: { fl:d_fl.value, rl:d_rl.value, br:d_br.value, if:d_if.value, ir:d_ir.value, is:d_is.value },
+      p: { fl:p_fl.value, rl:p_rl.value, br:p_br.value, if:p_if.value, ir:p_ir.value, is:p_is.value }
     }
   };
 
-  qrURL = `report.html?d=${encodeURIComponent(JSON.stringify(payload))}`;
+  qrURL = "https://ivanmjwarburton.github.io/Car.Check/report.html?d=" + encodeURIComponent(JSON.stringify(data));
 
-  document.getElementById('qrWrapper').style.display = 'block';
-  const qEl = document.getElementById('qrcode');
-  qEl.innerHTML = '';
-  new QRCode(qEl, { text: qrURL, width: 180, height: 180 });
+  document.getElementById("qrWrapper").style.display = "block";
+  document.getElementById("qrcode").innerHTML = "";
+
+  new QRCode(document.getElementById("qrcode"), {
+    text: qrURL, width:180, height:180, correctLevel:QRCode.CorrectLevel.M
+  });
 }
 
-function openFullscreenQR(){
-  const big = document.getElementById('qrBig');
-  big.innerHTML = '';
-  new QRCode(big, { text: qrURL, width: 320, height: 320 });
-  document.getElementById('qrFullscreen').style.display = 'flex';
+function openFullscreenQR() {
+  qrBig.innerHTML = "";
+  new QRCode(qrBig, { text: qrURL, width:320, height:320 });
+  qrFullscreen.style.display = "flex";
   document.documentElement.requestFullscreen?.();
   requestWakeLock();
 }
 
-function closeFullscreenQR(){
+function closeFullscreenQR() {
   document.exitFullscreen?.();
-  document.getElementById('qrFullscreen').style.display = 'none';
+  qrFullscreen.style.display = "none";
   wakeLock?.release?.();
 }
 </script>
+
 </body>
 </html>
