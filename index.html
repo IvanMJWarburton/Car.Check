@@ -1,79 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Vehicle Check</title>
- 
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vehicle Visual Check</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
- 
 <body>
 <div class="container">
- 
-  <h2>Vehicle Check</h2>
- 
-  <form id="checkForm">
- 
-    <label>
-      Registration
-      <input id="reg" required>
-    </label>
- 
-    <label>
-      MOT Expiry Date
-      <input type="date" id="mot" required>
-    </label>
- 
-    <h3>Windscreen Damage</h3>
- 
-    <div id="windscreen-map">
-      <img src="windscreen.jpeg" alt="Windscreen">
-      <div id="ws-layer"></div>
+
+  <h2>Vehicle Visual Check</h2>
+
+  <!-- Windscreen popup (modal) -->
+  <div id="ws-popup" aria-hidden="true">
+    <div class="ws-dialog" onclick="event.stopPropagation()">
+      <p class="ws-title">Windscreen Damage</p>
+      <button class="ws-btn chip" onclick="selectWsType('chip')">Mark Chip</button>
+      <button class="ws-btn crack" onclick="selectWsType('crack')">Mark Crack</button>
+      <button class="ws-btn cancel" onclick="selectWsType('cancel')">Cancel</button>
     </div>
- 
-    <small>Tap the windscreen to mark a chip or crack</small>
- 
-    <label>
-      Wipers
-      <select id="wipers">
-        <option value="W">No issues found</option>
-        <option value="I">Worn / damaged</option>
-      </select>
-    </label>
- 
-    <h3>Additional / Extra Lighting Observations</h3>
-    <textarea id="lightNotes" rows="3"
-      placeholder="e.g. DRL strip partially out, light bar not working"></textarea>
- 
-    <button type="submit">Generate QR Code</button>
-  </form>
- 
-  <div id="qrWrapper" style="display:none">
+  </div>
+
+  <label>Registration
+    <input id="reg" maxlength="8" style="text-transform:uppercase">
+  </label>
+
+  <label>MOT Expiry Date
+    <input id="mot" type="date">
+  </label>
+
+  <h3>Windscreen Damage Map</h3>
+  <div id="windscreen-map">
+    <img id="windscreen-img" src="windscreen.jpg" alt="Windscreen">
+    <div id="ws-layer"></div>
+  </div>
+  <small>Tap the windscreen to mark a chip or crack</small>
+
+  <label>Wipers
+    <select id="wipers">
+      <option value="W">Working</option>
+      <option value="I">Worn / damaged</option>
+    </select>
+  </label>
+
+  <h3>Tyre Tread Depth (mm)</h3>
+  <div class="grid">
+    <label>Driver Front <input id="td_df" type="number" step="0.1"></label>
+    <label>Driver Rear <input id="td_dr" type="number" step="0.1"></label>
+    <label>Passenger Front <input id="td_pf" type="number" step="0.1"></label>
+    <label>Passenger Rear <input id="td_pr" type="number" step="0.1"></label>
+  </div>
+
+  <h3>Lights – Driver Side</h3>
+  <div class="grid">
+    <label>Front <select id="d_fl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Rear <select id="d_rl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Brake <select id="d_br"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Indicator Front <select id="d_if"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Indicator Rear <select id="d_ir"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Side Repeater <select id="d_is"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  </div>
+
+  <h3>Lights – Passenger Side</h3>
+  <div class="grid">
+    <label>Front <select id="p_fl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Rear <select id="p_rl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Brake <select id="p_br"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Indicator Front <select id="p_if"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Indicator Rear <select id="p_ir"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Side Repeater <select id="p_is"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  </div>
+
+  <h3>Additional / Extra Lighting Observations</h3>
+  <textarea id="lightNotes" rows="3" placeholder="e.g. DRL strip partially out, light bar not working"></textarea>
+
+  <button onclick="generate()">Generate QR Code</button>
+
+  <div id="qrWrapper">
     <div id="qrcode" onclick="openFullscreenQR()"></div>
     <small>Tap QR to enlarge for scanning</small>
   </div>
- 
+
   <small>Visual check only. Not an MOT or safety guarantee.</small>
 </div>
- 
-<!-- Windscreen popup -->
-<div id="ws-popup">
-  <div class="ws-dialog">
-    <div class="ws-title">Add Windscreen Damage</div>
-    <button class="ws-btn chip" data-type="chip">Mark Chip</button>
-    <button class="ws-btn crack" data-type="crack">Mark Crack</button>
-    <button class="ws-btn cancel" data-type="cancel">Cancel</button>
-  </div>
-</div>
- 
-<!-- QR fullscreen -->
+
+<!-- Fullscreen QR overlay -->
 <div id="qrFullscreen" onclick="closeFullscreenQR()">
   <div id="qrBig"></div>
   <small>Increase screen brightness for best scanning</small>
 </div>
- 
-<script src="script.js"></script>
 </body>
 </html>
