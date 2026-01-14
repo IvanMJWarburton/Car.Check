@@ -90,5 +90,137 @@
   <div id="qrBig"></div>
   <small>Increase screen brightness for best scanning</small>
 </div>
+
+<script>
+/* --------- DOM refs --------- */
+const wsMap = document.getElementById('windscreen-map');
+const wsLayer = document.getElementById('ws-layer');
+const wsPopup = document.getElementById('ws-popup');
+
+/* --------- windscreen marking state --------- */
+const wsMarks = [];
+let pendingClick = null;
+let popupOpen = false;
+let allowPopupClick = false;
+
+/* Pointer handler: set pending coordinates, open modal (no immediate click) */
+wsMap.addEventListener('pointerdown', e => {
+  if (popupOpen) return;
+
+  const rect = wsMap.getBoundingClientRect();
+  pendingClick = {
+    x: ((e.clientX - rect.left) / rect.width) * 100,
+    y: ((e.clientY - rect.top) / rect.height) * 100
+  };
+
+  popupOpen = true;
+  allowPopupClick = false;
+  wsPopup.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  // prevent the popup registering the initial tap
+  setTimeout(() => { allowPopupClick = true; }, 120);
+});
+
+/* click on backdrop closes */
+wsPopup.addEventListener('click', () => {
+  if (!allowPopupClick) return;
+  closePopup();
+});
+
+function closePopup(){
+  wsPopup.style.display = 'none';
+  popupOpen = false;
+  allowPopupClick = false;
+  pendingClick = null;
+  document.body.style.overflow = '';
+}
+
+/* Called by modal buttons */
+function selectWsType(type){
+  if (!allowPopupClick) return;
+  if (type === 'cancel'){ closePopup(); return; }
+
+  const mark = { x: Math.round(pendingClick.x), y: Math.round(pendingClick.y), t: type };
+  wsMarks.push(mark);
+  renderWsMarker(mark);
+  closePopup();
+}
+
+/* Render a marker dot on the input page */
+function renderWsMarker(m){
+  const el = document.createElement('div');
+  el.className = `ws-marker ws-${m.t}`;
+  el.style.left = m.x + '%';
+  el.style.top = m.y + '%';
+  wsLayer.appendChild(el);
+}
+
+/* --------- QR generation --------- */
+let qrURL = '';
+let wakeLock = null;
+
+async function requestWakeLock(){
+  try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
+}
+
+function generate(){
+  // include timestamp of inspection moment
+  const payload = {
+    ts: new Date().toISOString(),
+    r: document.getElementById('reg').value.toUpperCase(),
+    m: document.getElementById('mot').value,
+    ws: wsMarks,
+    wp: document.getElementById('wipers').value,
+    n: document.getElementById('lightNotes').value,
+    t: {
+      df: +document.getElementById('td_df').value || null,
+      dr: +document.getElementById('td_dr').value || null,
+      pf: +document.getElementById('td_pf').value || null,
+      pr: +document.getElementById('td_pr').value || null
+    },
+    l: {
+      d: {
+        fl: document.getElementById('d_fl').value,
+        rl: document.getElementById('d_rl').value,
+        br: document.getElementById('d_br').value,
+        if: document.getElementById('d_if').value,
+        ir: document.getElementById('d_ir').value,
+        is: document.getElementById('d_is').value
+      },
+      p: {
+        fl: document.getElementById('p_fl').value,
+        rl: document.getElementById('p_rl').value,
+        br: document.getElementById('p_br').value,
+        if: document.getElementById('p_if').value,
+        ir: document.getElementById('p_ir').value,
+        is: document.getElementById('p_is').value
+      }
+    }
+  };
+
+  qrURL = `report.html?d=${encodeURIComponent(JSON.stringify(payload))}`;
+
+  document.getElementById('qrWrapper').style.display = 'block';
+  const qEl = document.getElementById('qrcode');
+  qEl.innerHTML = '';
+  new QRCode(qEl, { text: qrURL, width: 180, height: 180 });
+}
+
+function openFullscreenQR(){
+  const big = document.getElementById('qrBig');
+  big.innerHTML = '';
+  new QRCode(big, { text: qrURL, width: 320, height: 320 });
+  document.getElementById('qrFullscreen').style.display = 'flex';
+  document.documentElement.requestFullscreen?.();
+  requestWakeLock();
+}
+
+function closeFullscreenQR(){
+  document.exitFullscreen?.();
+  document.getElementById('qrFullscreen').style.display = 'none';
+  wakeLock?.release?.();
+}
+</script>
 </body>
 </html>
