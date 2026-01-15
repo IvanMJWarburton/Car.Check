@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vehicle Visual Check</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+
+<body>
+<div class="container">
+
+  <h2>Vehicle Visual Check</h2>
+
+  <button class="queue-admin-btn"
+      onclick="window.open('https://qrq.app/a/3125970/rsESZBAwGOKoikyOd3fTB', '_blank')">
+      Check Queue
+  </button>
+
+  <!-- Windscreen popup -->
+  <div id="ws-popup">
+    <div class="ws-dialog" id="wsDialog">
+      <p class="ws-title">Windscreen Damage</p>
+
+      <button class="ws-btn chip" id="wsChipBtn">Mark Chip</button>
+      <button class="ws-btn crack" id="wsCrackBtn">Mark Crack</button>
+      <button class="ws-btn cancel" id="wsCancelBtn">Cancel</button>
+    </div>
+  </div>
+
+  <label>Registration
+    <input id="reg" maxlength="8" style="text-transform:uppercase">
+  </label>
+
+  <button id="motQuickCheckBtn" type="button">Quick MOT Check</button>
+
+  <label>MOT Expiry Date
+    <input type="date" id="mot">
+  </label>
+
+  <h3>Windscreen Damage Map</h3>
+
+  <div id="windscreen-map">
+    <img src="windscreen.jpg" alt="Windscreen">
+    <div id="ws-layer"></div>
+  </div>
+
+  <div class="btn-row">
+    <button id="clearMarksBtn">Clear Marks</button>
+    <button id="undoMarkBtn">Undo Last</button>
+  </div>
+
+  <div class="legend">
+    <span class="legend-dot legend-chip"></span> Chip
+    <span class="legend-dot legend-crack"></span> Crack
+  </div>
+
+  <small>Tap the windscreen to mark a chip or crack</small>
+
+  <label>Wipers
+    <select id="wipers">
+      <option value="W">Working</option>
+      <option value="I">Worn / damaged</option>
+    </select>
+  </label>
+
+  <h3>Tyre Tread Depth (mm)</h3>
+  <div class="grid">
+    <label>Driver Front <input type="number" step="0.1" id="td_df"></label>
+    <label>Driver Rear <input type="number" step="0.1" id="td_dr"></label>
+    <label>Passenger Front <input type="number" step="0.1" id="td_pf"></label>
+    <label>Passenger Rear <input type="number" step="0.1" id="td_pr"></label>
+  </div>
+
+  <h3>Lights – Driver Side</h3>
+  <div class="grid">
+    <label>Front <select id="d_fl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Rear <select id="d_rl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Brake <select id="d_br"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Indicator Front <select id="d_if"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Indicator Rear <select id="d_ir"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Side Repeater <select id="d_is"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  </div>
+
+  <h3>Lights – Passenger Side</h3>
+  <div class="grid">
+    <label>Front <select id="p_fl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Rear <select id="p_rl"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Brake <select id="p_br"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Indicator Front <select id="p_if"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Indicator Rear <select id="p_ir"><option value="W">Working</option><option value="I">Issue</option></select></label>
+    <label>Side Repeater <select id="p_is"><option value="W">Working</option><option value="I">Issue</option></select></label>
+  </div>
+
+  <h3>Additional Observations</h3>
+  <textarea id="lightNotes" rows="3"></textarea>
+
+  <button id="generateBtn">Generate QR Code</button>
+
+  <div id="qrWrapper">
+    <div id="qrcode"></div>
+    <small>Tap QR to enlarge for scanning</small>
+  </div>
+
+  <small>Visual check only. Not an MOT or safety guarantee.</small>
+
+</div>
+
+<div id="qrFullscreen">
+  <div id="qrBig"></div>
+  <small>Increase screen brightness for best scanning</small>
+</div>
+
+<script src="indexScript.js"></script>
+</body>
+</html>
