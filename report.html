@@ -1,133 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Vehicle Check Report</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Vehicle Check Report</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="container">
   <h2>Vehicle Check Report</h2>
+
   <div id="report"></div>
+
   <small>Visual check only. Not an MOT or safety guarantee.</small>
 </div>
 
-<script>
-const raw = new URLSearchParams(location.search).get('d');
-
-function badge(text, cls){
-  return `<span class="badge ${cls}">${text}</span>`;
-}
-
-function motStatus(dateStr){
-  if (!dateStr) return { text: 'Not recorded', cls: 'warn', illegal: false };
-  const today = new Date();
-  const mot = new Date(dateStr);
-  const days = Math.ceil((mot - today) / 86400000);
-  if (days < 0) return { text: `Expired ${Math.abs(days)} days ago`, cls: 'bad', illegal: true };
-  if (days <= 30) return { text: `Expires in ${days} days`, cls: 'warn', illegal: false };
-  return { text: `Expires in ${days} days`, cls: 'good', illegal: false };
-}
-
-function tyreReport(mm){
-  if (mm == null) return { text: 'Not checked', cls: 'warn', issue: false, illegal: false };
-  if (mm < 1.6) return { text: `${mm} mm – Illegal`, cls: 'bad', issue: true, illegal: true };
-  if (mm < 3) return { text: `${mm} mm – Low`, cls: 'warn', issue: true, illegal: false };
-  return { text: `${mm} mm – Good`, cls: 'good', issue: false, illegal: false };
-}
-
-if (!raw) {
-  document.getElementById('report').innerHTML = '<p>No report data.</p>';
-} else {
-  const d = JSON.parse(decodeURIComponent(raw));
-  const checkTime = d.ts ? new Date(d.ts).toLocaleString() : 'Not recorded';
-
-  let issues = 0;
-  let illegal = false;
-
-  const mot = motStatus(d.m);
-  if (mot.illegal) illegal = true;
-
-  if (d.wp === 'I') issues++;
-  if (d.ws && d.ws.length) issues += d.ws.length;
-
-  const tyres = {
-    df: tyreReport(d.t.df),
-    dr: tyreReport(d.t.dr),
-    pf: tyreReport(d.t.pf),
-    pr: tyreReport(d.t.pr)
-  };
-
-  Object.values(tyres).forEach(t => { if (t.issue) issues++; if (t.illegal) illegal = true; });
-
-  function light(v){ if (v === 'I') { issues++; return badge('Issue observed','warn'); } return badge('No issues found','good'); }
-
-  let overall = illegal ? badge('Vehicle illegal','bad') : (issues ? badge(`Issues require attention (${issues})`,'warn') : badge('All good','good'));
-
-  // Build report HTML
-  document.getElementById('report').innerHTML = `
-    <p><strong>Date & Time of Check:</strong> ${checkTime}</p>
-    <h3>Overall Vehicle Status</h3>
-    <p>${overall}</p>
-
-    <h3>Vehicle Details</h3>
-    <p><strong>Registration:</strong> ${d.r || 'Not recorded'}</p>
-    <p><strong>MOT:</strong> ${badge(mot.text, mot.cls)}</p>
-
-    <h3>Windscreen & Wipers</h3>
-    <p>Windscreen: ${d.ws && d.ws.length ? badge('Damage recorded','warn') : badge('No issues found','good')}</p>
-    <p>Wipers: ${d.wp === 'W' ? badge('No issues found','good') : badge('Worn / damaged','warn')}</p>
-
-    <h3>Windscreen Image</h3>
-    <div id="windscreen-map">
-      <img src="windscreen.jpg" alt="Windscreen">
-      <div id="ws-layer"></div>
-    </div>
-
-    <h3>Tyres</h3>
-    <ul>
-      <li>Driver Front: ${badge(tyres.df.text, tyres.df.cls)}</li>
-      <li>Driver Rear: ${badge(tyres.dr.text, tyres.dr.cls)}</li>
-      <li>Passenger Front: ${badge(tyres.pf.text, tyres.pf.cls)}</li>
-      <li>Passenger Rear: ${badge(tyres.pr.text, tyres.pr.cls)}</li>
-    </ul>
-
-    <h3>Lights – Driver Side</h3>
-    <ul>
-      <li>Front Light: ${light(d.l.d.fl)}</li>
-      <li>Rear Light: ${light(d.l.d.rl)}</li>
-      <li>Brake Light: ${light(d.l.d.br)}</li>
-      <li>Front Indicator: ${light(d.l.d.if)}</li>
-      <li>Rear Indicator: ${light(d.l.d.ir)}</li>
-      <li>Side Repeater: ${light(d.l.d.is)}</li>
-    </ul>
-
-    <h3>Lights – Passenger Side</h3>
-    <ul>
-      <li>Front Light: ${light(d.l.p.fl)}</li>
-      <li>Rear Light: ${light(d.l.p.rl)}</li>
-      <li>Brake Light: ${light(d.l.p.br)}</li>
-      <li>Front Indicator: ${light(d.l.p.if)}</li>
-      <li>Rear Indicator: ${light(d.l.p.ir)}</li>
-      <li>Side Repeater: ${light(d.l.p.is)}</li>
-    </ul>
-
-    ${d.n ? `<h3>Additional Notes</h3><p>${d.n}</p>` : ''}
-  `;
-
-  // Render markers if present
-  if (d.ws && d.ws.length) {
-    const layer = document.getElementById('ws-layer');
-    d.ws.forEach(m => {
-      const el = document.createElement('div');
-      el.className = `ws-marker ws-${m.t}`;
-      el.style.left = m.x + '%';
-      el.style.top = m.y + '%';
-      layer.appendChild(el);
-    });
-  }
-}
-</script>
+<script src="reportScript.js"></script>
 </body>
 </html>
