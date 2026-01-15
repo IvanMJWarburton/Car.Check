@@ -430,4 +430,22 @@ small {
 }
 
 
+/* Landing image */
+.landing-image {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto 20px;
+  display: block;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* Price display (non-button style) */
+.price-display {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2563eb;
+  margin-bottom: 20px;
+}
+
 
