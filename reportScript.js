@@ -7,14 +7,44 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function motStatus(dateStr) {
-    if (!dateStr) return { text: "Not recorded", cls: "warn", illegal: false };
-    const today = new Date();
-    const mot = new Date(dateStr);
-    const days = Math.ceil((mot - today) / 86400000);
-    if (days < 0) return { text: `Expired ${Math.abs(days)} days ago`, cls: "bad", illegal: true };
-    if (days <= 30) return { text: `Expires in ${days} days`, cls: "warn", illegal: false };
-    return { text: `Expires in ${days} days`, cls: "good", illegal: false };
+  if (!dateStr) return { text: "Not recorded", cls: "warn", illegal: false, date: null };
+
+  const today = new Date();
+  const mot = new Date(dateStr);
+  const days = Math.ceil((mot - today) / 86400000);
+
+  const formatted = mot.toLocaleDateString(undefined, {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+
+  if (days < 0) {
+    return {
+      text: `Expired ${Math.abs(days)} days ago`,
+      cls: "bad",
+      illegal: true,
+      date: formatted
+    };
   }
+
+  if (days <= 30) {
+    return {
+      text: `Expires in ${days} days`,
+      cls: "warn",
+      illegal: false,
+      date: formatted
+    };
+  }
+
+  return {
+    text: `Expires in ${days} days`,
+    cls: "good",
+    illegal: false,
+    date: formatted
+  };
+}
+
 
   function tyreReport(mm) {
     if (mm == null) return { text: "Not checked", cls: "warn", issue: false, illegal: false };
@@ -89,7 +119,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     <h3>Vehicle Details</h3>
     <p><strong>Registration:</strong> ${d.r || "Not recorded"}</p>
-    <p><strong>MOT:</strong> ${badge(mot.text, mot.cls)}</p>
+    <p><strong>MOT:</strong> 
+      ${badge(mot.text, mot.cls)}
+      ${mot.date ? `<br><small>Expiry date: ${mot.date}</small>` : ""}
+    </p>
+
 
     <h3>Windscreen & Wipers</h3>
 
