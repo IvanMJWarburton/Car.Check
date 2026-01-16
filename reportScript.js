@@ -117,7 +117,6 @@ document.addEventListener("DOMContentLoaded", () => {
   reportContainer.innerHTML = `
     <div class="report-actions">
       <button id="downloadPdfBtn" class="action-btn">Download PDF</button>
-      <button id="emailBtn" class="action-btn">Email Report</button>
     </div>
 
     <p><strong>Date & Time of Check:</strong> ${checkTime}</p>
@@ -225,19 +224,6 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     html2pdf().from(element).set(opt).save();
-  });
-
-  // ---------------------------------------------------------
-  // EMAIL REPORT HANDLER
-  // ---------------------------------------------------------
-
-  document.getElementById("emailBtn").addEventListener("click", () => {
-    const subject = encodeURIComponent("Your Vehicle Health Check Report");
-    const body = encodeURIComponent(
-      `Here is your vehicle health check report.\n\nRegistration: ${d.r}\nChecked on: ${checkTime}\n\nYou can view your report here:\n${window.location.href}`
-    );
-
-    window.location.href = `mailto:?subject=${subject}&body=${body}`;
   });
 
   // ---------------------------------------------------------
