@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     <p class="overall-desc">
       The legal minimum tread depth is 1.6mm across the central ¾ of the tyre. 
-      This is a visual check only and does not measure tread depth.
+      This is a visual check only.
     </p>
 
     <ul>
