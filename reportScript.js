@@ -7,44 +7,43 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function motStatus(dateStr) {
-  if (!dateStr) return { text: "Not recorded", cls: "warn", illegal: false, date: null };
+    if (!dateStr) return { text: "Not recorded", cls: "warn", illegal: false, date: null };
 
-  const today = new Date();
-  const mot = new Date(dateStr);
-  const days = Math.ceil((mot - today) / 86400000);
+    const today = new Date();
+    const mot = new Date(dateStr);
+    const days = Math.ceil((mot - today) / 86400000);
 
-  const formatted = mot.toLocaleDateString(undefined, {
-    day: "numeric",
-    month: "long",
-    year: "numeric"
-  });
+    const formatted = mot.toLocaleDateString(undefined, {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
 
-  if (days < 0) {
-    return {
-      text: `Expired ${Math.abs(days)} days ago`,
-      cls: "bad",
-      illegal: true,
-      date: formatted
-    };
-  }
+    if (days < 0) {
+      return {
+        text: `Expired ${Math.abs(days)} days ago`,
+        cls: "bad",
+        illegal: true,
+        date: formatted
+      };
+    }
 
-  if (days <= 30) {
+    if (days <= 30) {
+      return {
+        text: `Expires in ${days} days`,
+        cls: "warn",
+        illegal: false,
+        date: formatted
+      };
+    }
+
     return {
       text: `Expires in ${days} days`,
-      cls: "warn",
+      cls: "good",
       illegal: false,
       date: formatted
     };
   }
-
-  return {
-    text: `Expires in ${days} days`,
-    cls: "good",
-    illegal: false,
-    date: formatted
-  };
-}
-
 
   function tyreReport(mm) {
     if (mm == null) return { text: "Not checked", cls: "warn", issue: false, illegal: false };
@@ -119,13 +118,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     <h3>Vehicle Details</h3>
     <p><strong>Registration:</strong> ${d.r || "Not recorded"}</p>
+
+    <p class="overall-desc">This date is provided for reference only. This check does not confirm MOT eligibility or roadworthiness.</p>
+
     <p><strong>MOT:</strong> 
       ${badge(mot.text, mot.cls)}
-      ${mot.date ? `<br><small>Expiry date: ${mot.date}</small>` : ""}
+      ${mot.date ? `<br>Expiry date: ${mot.date}` : ""}
     </p>
 
-
     <h3>Windscreen & Wipers</h3>
+
+    <p class="overall-desc">Chips, cracks, or damage in the driver’s line of sight may result in an MOT failure. This is a visual check only.</p>
 
     <div id="windscreen-map">
       <img src="windscreen.jpg" alt="Windscreen">
@@ -141,7 +144,8 @@ document.addEventListener("DOMContentLoaded", () => {
       d.ws && d.ws.length
         ? badge("Damage recorded", "warn")
         : badge("No issues found", "good")
-    }</p>
+    }
+    </p>
 
     <p>Wipers: ${
       d.wp === "W"
@@ -150,6 +154,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }</p>
 
     <h3>Tyres</h3>
+
+    <p class="overall-desc">
+      The legal minimum tread depth is 1.6mm across the central ¾ of the tyre. 
+      This is a visual check only and does not measure tread depth.
+    </p>
+
     <ul>
       <li>Driver Front: ${badge(tyres.df.text, tyres.df.cls)}</li>
       <li>Driver Rear: ${badge(tyres.dr.text, tyres.dr.cls)}</li>
@@ -157,7 +167,15 @@ document.addEventListener("DOMContentLoaded", () => {
       <li>Passenger Rear: ${badge(tyres.pr.text, tyres.pr.cls)}</li>
     </ul>
 
-    <h3>Lights – Driver Side</h3>
+    
+    <h3>Lights</h3>
+
+    <p class="overall-desc">
+      All required lights must operate correctly for an MOT. 
+      This check is visual only and does not guarantee MOT compliance.
+    </p>
+
+    <h3>Driver Side</h3>
     <ul>
       <li>Front Light: ${light(d.l?.d?.fl)}</li>
       <li>Rear Light: ${light(d.l?.d?.rl)}</li>
@@ -167,7 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <li>Side Repeater: ${light(d.l?.d?.is)}</li>
     </ul>
 
-    <h3>Lights – Passenger Side</h3>
+    <h3>Passenger Side</h3>
     <ul>
       <li>Front Light: ${light(d.l?.p?.fl)}</li>
       <li>Rear Light: ${light(d.l?.p?.rl)}</li>
