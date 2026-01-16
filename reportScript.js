@@ -110,7 +110,16 @@ document.addEventListener("DOMContentLoaded", () => {
     overallDesc = `<div class="overall-desc">All is OK — no issues found. Vehicle is in optimal condition.</div>`;
   }
 
+  // ---------------------------------------------------------
+  // INSERT BUTTONS AT TOP OF REPORT
+  // ---------------------------------------------------------
+
   reportContainer.innerHTML = `
+    <div class="report-actions">
+      <button id="downloadPdfBtn" class="action-btn">Download PDF</button>
+      <button id="emailBtn" class="action-btn">Email Report</button>
+    </div>
+
     <p><strong>Date & Time of Check:</strong> ${checkTime}</p>
 
     ${overallStatus}
@@ -167,7 +176,6 @@ document.addEventListener("DOMContentLoaded", () => {
       <li>Passenger Rear: ${badge(tyres.pr.text, tyres.pr.cls)}</li>
     </ul>
 
-    
     <h3>Lights</h3>
 
     <p class="overall-desc">
@@ -201,6 +209,40 @@ document.addEventListener("DOMContentLoaded", () => {
         : ""
     }
   `;
+
+  // ---------------------------------------------------------
+  // PDF DOWNLOAD HANDLER
+  // ---------------------------------------------------------
+
+  document.getElementById("downloadPdfBtn").addEventListener("click", () => {
+    const element = document.getElementById("report");
+
+    const opt = {
+      margin: 10,
+      filename: `${d.r || "vehicle"}-health-check.pdf`,
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+    };
+
+    html2pdf().from(element).set(opt).save();
+  });
+
+  // ---------------------------------------------------------
+  // EMAIL REPORT HANDLER
+  // ---------------------------------------------------------
+
+  document.getElementById("emailBtn").addEventListener("click", () => {
+    const subject = encodeURIComponent("Your Vehicle Health Check Report");
+    const body = encodeURIComponent(
+      `Here is your vehicle health check report.\n\nRegistration: ${d.r}\nChecked on: ${checkTime}\n\nYou can view your report here:\n${window.location.href}`
+    );
+
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  });
+
+  // ---------------------------------------------------------
+  // WINDSCREEN MARKERS
+  // ---------------------------------------------------------
 
   const wsLayer = document.getElementById("ws-layer");
   if (d.ws && d.ws.length) {
