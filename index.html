@@ -3,56 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>On Lunch</title>
-
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #f3f4f6;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      text-align: center;
-      color: #1f2937;
-    }
-
-    .card {
-      background: white;
-      padding: 40px 30px;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      max-width: 420px;
-    }
-
-    h1 {
-      font-size: 32px;
-      margin-bottom: 10px;
-      color: #2563eb;
-    }
-
-    p {
-      font-size: 18px;
-      margin-bottom: 20px;
-      line-height: 1.4;
-    }
-
-    .small {
-      font-size: 14px;
-      color: #6b7280;
-      margin-top: 20px;
-    }
-  </style>
+  <title>Vehicle Health Check</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
-  <div class="card">
-    <h1>On a short break</h1>
-    <p>We’re taking a short break and will be back soon.</p>
-    <p>Please check back in a little while.</p>
-    <div class="small">Thank you for your patience.</div>
+<body class="landing-body">
+
+  <div class="landing-container">
+
+    <h1 class="landing-title">Electric Vehicle Health Check</h1>
+    <p class="landing-subtitle">Get peace of mind with a vehicle health check while you charge.</p>
+
+    <img src="car.jpeg" alt="Electric Vehicle" class="landing-image">
+
+    <div class="price-display">£20</div>
+
+    <h2 class="section-title">How it works</h2>
+    <p class="requirements-text">
+      Join the queue by clicking the button below.  
+      When it’s your turn, a technician will come to your vehicle to take payment and begin the check.  
+      Once finished, we’ll give you a report of our findings.
+    </p>
+
+    <h2 class="section-title">What’s Included</h2>
+
+    <div class="features-grid">
+      <div class="feature-card">Tyre Tread</div>
+      <div class="feature-card">Lights</div>
+      <div class="feature-card">Windscreen</div>
+      <div class="feature-card">Wiper Check</div>
+      <div class="feature-card">Vehicle MOT date check</div>
+      <div class="feature-card">Additional Observations</div>
+    </div>
+
+    <h2 class="section-title">Requirements</h2>
+     <p class="requirements-text">
+      <strong style="color:red;">You must be using the Tesla Superchargers</strong> and remain with your vehicle during the check.  
+      You may step out of the vehicle, but you must have your car on for light checks.
+    </p>
+
+    <a href="https://qrq.app/q/3125970" class="queue-btn">Join the Queue</a>
+
+    <p class="footer-note">Visual check only. Not an MOT or safety guarantee.</p>
+
   </div>
+
 </body>
 </html>
